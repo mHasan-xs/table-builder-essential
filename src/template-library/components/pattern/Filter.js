@@ -19,7 +19,6 @@ const Filter = () => {
 	 * @returns {void}
 	 */
 	const handleCategoryFilter = (newCategory) => {
-		console.log("🚀 ~ handleCategoryFilter ~ newCategory:", newCategory)
 		dispatch({
 			type: 'SET_SEARCH_INPUT',
 			searchInput: ''

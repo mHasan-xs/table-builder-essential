@@ -22,6 +22,7 @@ if (! defined('ABSPATH')) {
 define('TABLE_BUILDER_ESSENTIAL_VERSION', '1.0.0');
 define('TABLE_BUILDER_ESSENTIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TABLE_BUILDER_ESSENTIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('TABLE_BUILDER_ESSENTIAL_PLUGIN_FILE', __FILE__);
 
 // Load autoloader
 require_once plugin_dir_path(__FILE__) . 'includes/Autoloader.php';
@@ -60,6 +61,7 @@ add_action('init', 'create_block_table_builder_essential_init');
 
 // We are in admin mode
 require_once plugin_dir_path(__FILE__) . 'includes/cpt.php';
+require_once plugin_dir_path(__FILE__) . 'includes/meta-boxes.php';
 
 /**
  * Adds 'template' post type to the allowed post types for the popup builder.
@@ -241,8 +243,11 @@ function table_builder_essential_activate()
 	if (function_exists('table_builder_essential_register_template_post_type')) {
 		table_builder_essential_register_template_post_type();
 	}
-	if (function_exists('table_builder_essential_register_taxonomies')) {
-		table_builder_essential_register_taxonomies();
+	if (function_exists('table_builder_essential_register_layout_manager_post_type')) {
+		table_builder_essential_register_layout_manager_post_type();
+	}
+	if (function_exists('table_builder_essential_register_layout_manager_taxonomies')) {
+		table_builder_essential_register_layout_manager_taxonomies();
 	}
 	flush_rewrite_rules();
 }
