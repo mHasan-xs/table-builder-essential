@@ -1,0 +1,187 @@
+// Select Component Styles
+.table-builder-custom-select {
+    position: relative;
+    width: 105px;
+
+    @media (max-width: 425px) {
+        width: 100%;
+    }
+
+    // Trigger Button
+    .select-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 8px 16px;
+        background: #ffffff;
+        border: 1px solid #CDD0DF;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font: inherit;
+        text-align: left;
+
+        &:hover:not(:disabled) {
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--primary-color, #3b82f6);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        &:disabled {
+            background: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+
+            .select-arrow {
+                color: #d1d5db;
+            }
+        }
+    }
+
+    // Select Value & Placeholder
+    .select-value,
+    .select-placeholder {
+        font-size: 13px;
+        font-weight: 500;
+        flex-grow: 1;
+        text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .select-value {
+        color: #111827;
+    }
+
+    .select-placeholder {
+        color: #111827;
+    }
+
+    // Arrow Icon
+    .select-arrow {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.2s ease;
+        margin-left: 8px;
+        flex-shrink: 0;
+    }
+
+    // State Modifiers
+    &.open {
+        .select-trigger {
+            border-color: var(--primary-color, #3b82f6);
+        }
+
+        .select-arrow {
+            transform: rotate(180deg);
+        }
+    }
+
+    &.error .select-trigger {
+        border-color: #ef4444;
+
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+    }
+
+    // Dropdown (using ul)
+    .select-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        min-width: 133px;
+        width: max-content;
+        max-width: 300px;
+        z-index: 1000;
+        border-radius: 8px;
+        border: 1px solid #E4E5ED;
+        background: #ffffff;
+        box-shadow:
+            0 4px 8px -4px rgba(19, 21, 29, 0.06),
+            0 8px 16px -2px rgba(19, 21, 29, 0.10);
+        padding: 4px;
+        margin: 0;
+        list-style: none;
+        max-height: 240px;
+        overflow-y: auto;
+        animation: slideDown 0.15s ease-out;
+
+        // Custom Scrollbar
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+
+            &:hover {
+                background: #94a3b8;
+            }
+        }
+    }
+
+    // Individual Option (li element)
+    .select-option {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        margin: 0;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #374151;
+        list-style: none;
+
+        &:hover:not(.disabled) {
+            background: #F2F4F7;
+        }
+
+        &.focused:not(.disabled) {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        &.selected {
+            background: #F2F4F7;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        &.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+            color: #9ca3af;
+        }
+    }
+}
+
+// Animation
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

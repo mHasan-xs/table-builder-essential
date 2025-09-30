@@ -1,0 +1,7 @@
+.admin-bar .site-header {
+	margin-top: 32px;
+}
+
+.admin-bar .site-header > .gutenkit-sticky {
+	top: 32px !important;
+}

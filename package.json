@@ -1,0 +1,34 @@
+{
+	"name": "table-builder-essential",
+	"version": "0.1.0",
+	"description": "A helper plugin for Table Builder",
+	"author": "wpmet",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"files": [
+		"assets",
+		"build",
+		"includes",
+		"languages",
+		"table-builder-essential.php",
+		"readme.txt"
+	],
+	"scripts": {
+		"build": "wp-scripts build",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"start": "wp-scripts start",
+		"env": "wp-env",
+		"plugin-zip": "node ./packages/create-zip/index.js",
+		"publish": "npm run build && npm run plugin-zip"
+	},
+	"devDependencies": {
+		"@wordpress/env": "^10.13.0",
+		"@wordpress/scripts": "^30.6.0"
+	},
+	"dependencies": {
+		"classnames": "^2.5.1"
+	}
+}

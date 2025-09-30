@@ -1,0 +1,373 @@
+/**
+ *  common.scss page , template and pattern styles
+ * This file contains the styles for the template library in the table-builder Blocks Addon plugin.
+ * The styles define the appearance and behavior of the library items, including their titles, thumbnails, overlays, and buttons.
+ * The styles also include hover and active states for the library items.
+ */
+
+.table-builder-page,
+.table-builder-pattern,
+.table-builder-template {
+	.table-builder-library-list-item {
+		display: inline-block;
+		position: relative;
+		width: 100%;
+		box-sizing: border-box;
+		margin-bottom: 30px;
+		padding: 3px 3px 12px 3px;
+		background-color: #FFFFFF;
+		border: 1px solid #FFFFFF;
+		transition: all 0.3s ease-in-out;
+		box-shadow: 0 2px 6px -2px #090B0F12;
+		cursor: pointer;
+
+		&__title {
+			padding-top: 11px;
+			color: #111722;
+			font-weight: 400;
+			font-size: 14px;
+			line-height: 17px;
+			text-align: center;
+			font-family: "Roboto", sans-serif;
+
+			.item-title {
+				position: relative;
+			}
+
+			&.is-premium {
+				.item-title {
+					&::after {
+						content: "Pro";
+						background-color: #FE0467;
+						color: #fff;
+						font-weight: 500;
+						font-size: 13px;
+						display: inline-flex;
+						font-family: "Roboto", sans-serif;
+						width: 34px;
+						height: 17px;
+						border-radius: 3px;
+						margin-left: 10px;
+						justify-content: center;
+						align-items: center;
+					}
+				}
+			}
+		}
+
+		&-inner-content {
+			&-thumbnail {
+				position: relative;
+				overflow: hidden;
+				cursor: pointer;
+				display: inline-flex;
+				border: 1px solid #E7E8EC;
+
+				img {
+					// height: auto;
+					max-width: 100%;
+				}
+
+				&.is-loading {
+					.table-builder-library-list-item-inner-content-overlay {
+						opacity: 1;
+						cursor: progress;
+
+						button {
+							pointer-events: none;
+							opacity: 1;
+							box-shadow: unset;
+							outline: unset;
+							background: transparent;
+							border-radius: 4px;
+							border: 1px solid rgba(255, 255, 255, 0.50);
+							color: #FFF;
+						}
+					}
+				}
+
+				.importing-spinner {
+					margin: 0;
+				}
+
+				&.disabled {
+					cursor: not-allowed;
+
+					.table-builder-import-button {
+						pointer-events: none;
+						opacity: 0.5;
+					}
+				}
+			}
+
+			&-overlay {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(59, 103, 254, 0.70);
+				display: inline-flex;
+				justify-content: center;
+				align-items: center;
+				opacity: 0;
+				transition: all 0.3s ease-in-out;
+				z-index: 1;
+
+				button {
+					transition: all 0.3s ease-in-out;
+					transform: translate(0, 5px);
+					background: #FFF;
+					color: #111722;
+					flex-direction: row-reverse;
+					padding: 10px 14px !important;
+					gap: 8px !important;
+					font-family: "Roboto", sans-serif;
+					font-size: 14px;
+					font-weight: 500;
+					height: unset;
+					border-radius: 4px;
+					border: 1px solid transparent;
+
+					svg {
+						fill: transparent;
+
+						path {
+							transition: 0.3s;
+						}
+					}
+
+					&:hover,
+					&:active,
+					&:focus {
+						box-shadow: unset;
+						outline: unset;
+						background: transparent;
+						color: #FFF;
+						border-radius: 4px;
+						border: 1px solid rgba(255, 255, 255, 0.50);
+
+						svg {
+							fill: transparent;
+
+							path {
+								stroke: #FFF;
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+		&:hover {
+			border: 1px solid #3B67FE;
+			background: #FFF;
+			box-shadow: 0px 10px 20px -10px rgba(9, 11, 15, 0.12);
+
+			button {
+				transform: translate(0, 0);
+			}
+
+			.table-builder-library-list-item-inner-content-thumbnail {
+				.table-builder-library-list-item-inner-content-overlay {
+					opacity: 1;
+				}
+			}
+
+			&.pro-inactive {
+				.table-builder-external-link {
+					transform: translate(0, 0);
+				}
+			}
+		}
+
+		&.pro-inactive {
+			.table-builder-library-list-item-inner-content-overlay {
+				background: rgba(17, 23, 34, 0.3);
+			}
+
+			.table-builder-external-link {
+				padding: 13px 20px;
+				text-decoration: none;
+				display: inline-flex;
+				align-items: center;
+				color: #FFF;
+				background: #3B67FE;
+				box-shadow: 0px 10px 20px -6px rgba(9, 11, 15, 0.30);
+				text-align: center;
+				font-family: "Roboto", sans-serif;
+				font-size: 14px;
+				font-weight: 500;
+				transition: all 0.3s ease-in-out;
+				transform: translate(0, 5px);
+				position: relative;
+
+				&::after {
+					content: "";
+					height: 1px;
+					width: 73%;
+					opacity: 0;
+					background-color: #fff;
+					position: absolute;
+					bottom: 18px;
+					transition: all 0.3s ease-in-out;
+				}
+
+				svg {
+					margin-left: 5px;
+					font-size: 14px;
+				}
+
+				&:hover {
+					&::after {
+						opacity: 1;
+					}
+				}
+
+				&:focus {
+					box-shadow: none;
+				}
+			}
+		}
+	}
+}
+
+// favorite button styles
+.table-builder-template,
+.table-builder-library-single-page {
+	.table-builder-library {
+		&__favorite {
+			display: none; // flex
+			justify-content: flex-end;
+			align-items: center;
+			gap: 8px;
+
+			&-icon {
+				display: flex;
+				align-items: center;
+			}
+
+			&-text {
+				color: var(#111722);
+				font-family: 'Roboto', sans-serif;
+				font-size: 16px;
+				font-weight: 400;
+			}
+		}
+	}
+}
+
+.table-builder-template {
+	.table-builder-library {
+		&__favorite {
+			margin-top: -12px;
+		}
+	}
+}
+
+//  common.scss page , template  styles heading and favorite button
+.table-builder-page,
+.table-builder-template {
+	.table-builder-library-list {
+		&__header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		&__title {
+			color: #111722;
+			font-family: "Roboto", sans-serif;
+			font-size: 22px;
+			font-weight: 700;
+			margin: 0;
+			margin-bottom: 10px;
+			margin-top: 6px;
+		}
+	}
+}
+
+// has-more-data class for loading
+.table-builder-library-single-page,
+.table-builder-library-list {
+
+	.has-more-data,
+	.has-more-data::after,
+	.has-more-data::before {
+		border-radius: 50%;
+		width: 12px;
+		height: 12px;
+		-webkit-animation-fill-mode: both;
+		animation-fill-mode: both;
+		-webkit-animation: load7 1.8s infinite ease-in-out;
+		animation: load7 1.8s infinite ease-in-out;
+	}
+
+	.has-more-data {
+		color: #909297;
+		background-color: transparent;
+		outline: none;
+		border: none;
+		font-size: 10px;
+		margin: 20px auto;
+		position: relative;
+		bottom: 20px;
+		left: 50%;
+		text-indent: -9999em;
+		-webkit-transform: translateZ(0);
+		-ms-transform: translateZ(0);
+		transform: translateZ(0);
+		-webkit-animation-delay: -0.16s;
+		animation-delay: -0.16s;
+	}
+
+	.has-more-data:before,
+	.has-more-data:after {
+		content: '';
+		position: absolute;
+		top: 0;
+	}
+
+	.has-more-data:before {
+		left: -3.5em;
+		-webkit-animation-delay: -0.32s;
+		animation-delay: -0.32s;
+	}
+
+	.has-more-data:after {
+		left: 3.5em;
+	}
+}
+
+.table-builder-library-single-page {
+	.has-more-data {
+		left: 0;
+	}
+}
+
+@-webkit-keyframes load7 {
+
+	0%,
+	80%,
+	100% {
+		box-shadow: 0 2.5em 0 -1.3em;
+	}
+
+	40% {
+		box-shadow: 0 2.5em 0 0;
+	}
+}
+
+@keyframes load7 {
+
+	0%,
+	80%,
+	100% {
+		box-shadow: 0 2.5em 0 -1.3em;
+	}
+
+	40% {
+		box-shadow: 0 2.5em 0 0;
+	}
+}

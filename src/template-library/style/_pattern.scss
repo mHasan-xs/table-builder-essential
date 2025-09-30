@@ -1,0 +1,41 @@
+.table-builder-pattern-part {
+	padding: 30px 40px 40px 40px;
+}
+
+.table-builder-pattern {
+	column-count: 4;
+	column-gap: 30px;
+	clear: both;
+	overflow: hidden;
+
+	.table-builder-library-list-item {
+		display: block;
+		break-inside: avoid-column;
+	}
+
+	@media (max-width: 1440px) {
+		column-count: 3;
+	}
+
+	@media (max-width: 1024px) {
+		column-count: 2;
+	}
+
+	@media (max-width: 768px) {
+		column-count: 1;
+	}
+
+	.table-builder-library-list-item {
+		&-inner-content {
+			&-thumbnail {
+				width: 100%;
+				border: unset;
+
+				img {
+					border: 1px solid #E7E8EC;
+					width: calc(100% - 2px);
+				}
+			}
+		}
+	}
+}
