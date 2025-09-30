@@ -43,12 +43,12 @@ const usePatternQuery = () => {
 					// Fetch patterns
 					if (searchInput === '') {
 						if (filter.category === 'all') {
-							const path = addQueryArgs('https://wpgutenkit.com/wp-json/gkit/v1/layout-manager-api/patterns', queryParams);
-							const response = await fetch(path, {
-								method: 'POST',
-								body: JSON.stringify(payload)
+							// Use local table-builder-essential API
+							const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
+							const json = await apiFetch({ 
+								path: path,
+								method: 'GET'
 							});
-							const json = await response.json();
 							let filteredPatterns = json?.posts || [];
 							
 							// Apply frontend filtering for content type if API doesn't support it
@@ -80,22 +80,12 @@ const usePatternQuery = () => {
 							queryParams.page = 1;
 							queryParams.per_page = 50;
 
-
-							// fake data for testing
-
-							// const path = addQueryArgs('https://mocki.io/v1/4219f048-c437-4229-9908-d4a572517c51', queryParams);
-							// const response = await fetch(path, {
-							// 	method: 'GET'  // Changed from POST to GET
-							// });
-
-
-							const path = addQueryArgs('https://wpgutenkit.com/wp-json/gkit/v1/layout-manager-api/patterns', queryParams);
-							const response = await fetch(path, {
-								method: 'POST',
-								body: JSON.stringify(payload)
+							// Use local table-builder-essential API
+							const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
+							const json = await apiFetch({ 
+								path: path,
+								method: 'GET'
 							});
-
-							const json = await response.json();
 							let filteredPatterns = json?.posts || [];
 							
 							// Apply frontend filtering for content type if API doesn't support it
@@ -127,12 +117,12 @@ const usePatternQuery = () => {
 						queryParams.search = searchInput.toLowerCase();
 						queryParams.page = 1;
 						queryParams.per_page = 100;
-						const path = addQueryArgs('https://wpgutenkit.com/wp-json/gkit/v1/layout-manager-api/patterns', queryParams);
-						const response = await fetch(path, {
-							method: 'POST',
-							body: JSON.stringify(payload)
+						// Use local table-builder-essential API
+						const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
+						const json = await apiFetch({ 
+							path: path,
+							method: 'GET'
 						});
-						const json = await response.json();
 						let filteredPatterns = json?.posts || [];
 						
 						// Apply frontend filtering for content type if API doesn't support it

@@ -42,7 +42,7 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 	);
 
 	return (
-		<div className={listItemClass} key={pattern?.ID}>
+		<div className={listItemClass}>
 			<div className={thumbnailClass}>
 				<LazyImage src={pattern?.thumbnail} alt={pattern?.title} />
 				<div className="table-builder-library-list-item-inner-content-overlay">

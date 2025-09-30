@@ -1,5 +1,6 @@
 import { useEffect, useState } from '@wordpress/element';
 import useContextLibrary from './useContextLibrary';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Custom hook for fetching categories from the layout manager API.
@@ -12,18 +13,11 @@ const useCategoryQuery = () => {
 		if (templateType === 'patterns' && categories.length === 0) {
 			try {
 				setLoading(true);
-				// const response = await fetch('https://wpgutenkit.com/wp-json/gkit/v1/layout-manager-api/patterns/categories', {
-				// 	method: 'POST',
-				// 	body: JSON.stringify(payload)
-				// });
-
-
-				const response = await fetch('https://mocki.io/v1/d80565e8-c6ad-41e0-8c90-16827442bce3', {
-					method: 'GET'  // Changed from POST to GET
+				// Use local table-builder-essential API
+				const json = await apiFetch({ 
+					path: 'table-builder/v1/layout-manager-api/patterns/categories',
+					method: 'GET'
 				});
-
-
-				const json = await response.json();
 				const allCount = json.reduce((acc, category) => acc + category.count, 0);
 				const allCategory = {
 					id: 0,

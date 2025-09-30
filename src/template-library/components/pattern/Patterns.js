@@ -80,7 +80,7 @@ const Patterns = () => {
 						<>
 							{patterns &&
 								patterns.map((pattern, index) => (
-									<Pattern key={pattern?.ID} pattern={pattern} onPatternImport={onPatternImport} onDownloadCount={onDownloadCount} />
+									<Pattern key={pattern?.id} pattern={pattern} onPatternImport={onPatternImport} onDownloadCount={onDownloadCount} />
 								))}
 						</>
 					)}

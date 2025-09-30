@@ -62,6 +62,7 @@ add_action('init', 'create_block_table_builder_essential_init');
 // We are in admin mode
 require_once plugin_dir_path(__FILE__) . 'includes/cpt.php';
 require_once plugin_dir_path(__FILE__) . 'includes/meta-boxes.php';
+require_once plugin_dir_path(__FILE__) . 'includes/rest-api.php';
 
 /**
  * Adds 'template' post type to the allowed post types for the popup builder.
