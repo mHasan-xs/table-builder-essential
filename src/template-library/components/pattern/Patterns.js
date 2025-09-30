@@ -85,8 +85,8 @@ const Patterns = () => {
 						</>
 					)}
 				</div>
-				{(hasMore && filter.category === 'all' && (!filter.contentType || filter.contentType === 'all')) && <button className="has-more-data" ref={loadMoreRef}></button>}
-				{((patterns && patterns.length === 0 && searchInput !== '')) && <Empty />}
+				{hasMore && <button className="has-more-data" ref={loadMoreRef}></button>}
+				{(patterns && patterns.length === 0 && !loading) && <Empty />}
 			</div>
 
 		</>

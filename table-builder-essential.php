@@ -28,6 +28,43 @@ define('TABLE_BUILDER_ESSENTIAL_PLUGIN_FILE', __FILE__);
 require_once plugin_dir_path(__FILE__) . 'includes/Autoloader.php';
 TableBuilderEssential\Autoloader::register();
 
+// Security initialization
+add_action('init', 'table_builder_essential_security_init');
+function table_builder_essential_security_init()
+{
+	// Add security headers
+	if (!is_admin()) {
+		add_action('wp_head', 'table_builder_essential_security_headers', 1);
+	}
+
+	// Remove version info to prevent information disclosure
+	remove_action('wp_head', 'wp_generator');
+
+	// Disable XML-RPC if not needed
+	add_filter('xmlrpc_enabled', '__return_false');
+}
+
+/**
+ * Add security headers for the plugin.
+ */
+function table_builder_essential_security_headers()
+{
+	// Content Security Policy
+	header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;");
+
+	// Prevent clickjacking
+	header('X-Frame-Options: SAMEORIGIN');
+
+	// Prevent MIME type sniffing
+	header('X-Content-Type-Options: nosniff');
+
+	// Enable XSS protection
+	header('X-XSS-Protection: 1; mode=block');
+
+	// Referrer policy
+	header('Referrer-Policy: strict-origin-when-cross-origin');
+}
+
 /**
  * Initialize the plugin
  */

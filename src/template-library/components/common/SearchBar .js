@@ -16,19 +16,38 @@ import { useCallback } from '@wordpress/element';
 const SearchBar = ({ onChange, onClick, onMouseLeave, onClose, className, placeholder }) => {
 	const { keyWords, dispatch } = useContextLibrary();
 	/**
+	 * Sanitizes input to prevent XSS attacks.
+	 *
+	 * @param {string} input - The input string to sanitize.
+	 * @returns {string} The sanitized input.
+	 */
+	const sanitizeInput = (input) => {
+		// Remove HTML tags and limit length
+		const sanitized = input
+			.replace(/<[^>]*>/g, '') // Remove HTML tags
+			.replace(/[<>&"']/g, '') // Remove dangerous characters
+			.substring(0, 100) // Limit length
+			.trim();
+		
+		return sanitized;
+	};
+
+	/**
 	 * Handles the input change event.
 	 *
 	 * @param {Object} event - The input change event object.
 	 */
 	const handleInputChange = useCallback((event) => {
-		const input = event.target.value;
+		const rawInput = event.target.value;
+		const sanitizedInput = sanitizeInput(rawInput);
+		
 		dispatch({
 			type: 'SET_KEY_WORDS',
-			keyWords: input
+			keyWords: sanitizedInput
 		});
 
-		// Call the onChange callback with the input value
-		onChange(input);
+		// Call the onChange callback with the sanitized input value
+		onChange(sanitizedInput);
 	}, [onChange]);
 
 	/**

@@ -34,117 +34,60 @@ const usePatternQuery = () => {
 					per_page: 16,
 				};
 				
+				// Add search parameter
+				if (searchInput && searchInput.trim() !== '') {
+					queryParams.search = searchInput.trim();
+				}
+				
+				// Add category filter
+				if (filter.category && filter.category !== 'all') {
+					queryParams.cat = filter.category;
+				}
+				
 				// Add content type filter (all, free, pro)
 				if (filter.contentType && filter.contentType !== 'all') {
 					queryParams.type = filter.contentType;
 				}
 				
+				// Add sorting parameter
+				if (filter.sortedBy) {
+					queryParams.sort = filter.sortedBy;
+				}
+				
 				if (templateType === 'patterns') {
-					// Fetch patterns
-					if (searchInput === '') {
-						if (filter.category === 'all') {
-							// Use local table-builder-essential API
-							const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
-							const json = await apiFetch({ 
-								path: path,
-								method: 'GET'
-							});
-							let filteredPatterns = json?.posts || [];
-							
-							// Apply frontend filtering for content type if API doesn't support it
-							if (filter.contentType && filter.contentType !== 'all') {
-								filteredPatterns = filteredPatterns.filter(pattern => {
-									if (filter.contentType === 'pro') {
-										return pattern.pro === true || pattern.is_pro === true || pattern.type === 'pro';
-									} else if (filter.contentType === 'free') {
-										return !pattern.pro && !pattern.is_pro && pattern.type !== 'pro';
-									}
-									return true;
-								});
-							}
-							
-							dispatch({
-								type: 'SET_PATTERNS',
-								patterns: [...patterns, ...filteredPatterns],
-							});
-							if (json?.posts.length < queryParams.per_page) {
-								setHasMore(false);
-							} else {
-								dispatch({
-									type: "SET_PATTERNS_PAGE",
-									patternsPage: patternsPage + 1
-								});
-							}
-						} else {
-							queryParams.cat = filter.category;
-							queryParams.page = 1;
-							queryParams.per_page = 50;
-
-							// Use local table-builder-essential API
-							const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
-							const json = await apiFetch({ 
-								path: path,
-								method: 'GET'
-							});
-							let filteredPatterns = json?.posts || [];
-							
-							// Apply frontend filtering for content type if API doesn't support it
-							if (filter.contentType && filter.contentType !== 'all') {
-								filteredPatterns = filteredPatterns.filter(pattern => {
-									if (filter.contentType === 'pro') {
-										return pattern.pro === true || pattern.is_pro === true || pattern.type === 'pro';
-									} else if (filter.contentType === 'free') {
-										return !pattern.pro && !pattern.is_pro && pattern.type !== 'pro';
-									}
-									return true;
-								});
-							}
-							
-							dispatch({
-								type: 'SET_PATTERNS',
-								patterns: filteredPatterns,
-							});
-							dispatch({
-								type: "SET_PATTERNS_PAGE",
-								patternsPage: 1
-							});
-						}
-					} else {
-						dispatch({
-							type: 'SET_FILTER',
-							filter: {}
-						})
-						queryParams.search = searchInput.toLowerCase();
-						queryParams.page = 1;
-						queryParams.per_page = 100;
-						// Use local table-builder-essential API
-						const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
-						const json = await apiFetch({ 
-							path: path,
-							method: 'GET'
-						});
-						let filteredPatterns = json?.posts || [];
-						
-						// Apply frontend filtering for content type if API doesn't support it
-						if (filter.contentType && filter.contentType !== 'all') {
-							filteredPatterns = filteredPatterns.filter(pattern => {
-								if (filter.contentType === 'pro') {
-									return pattern.pro === true || pattern.is_pro === true || pattern.type === 'pro';
-								} else if (filter.contentType === 'free') {
-									return !pattern.pro && !pattern.is_pro && pattern.type !== 'pro';
-								}
-								return true;
-							});
-						}
-						
+					// Single API call with all filters combined
+					// Use local table-builder-essential API
+					const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
+					const json = await apiFetch({ 
+						path: path,
+						method: 'GET'
+					});
+					let filteredPatterns = json?.posts || [];
+					
+					// Handle pagination - check if this is first page or filter change
+					const isFirstPageOrFilterChange = patternsPage === 1 || syncLibrary;
+					
+					if (isFirstPageOrFilterChange) {
+						// First load or filter change - replace patterns
 						dispatch({
 							type: 'SET_PATTERNS',
 							patterns: filteredPatterns,
 						});
-						// setHasMore(false);
+					} else {
+						// Load more - append to existing patterns
+						dispatch({
+							type: 'SET_PATTERNS',
+							patterns: [...patterns, ...filteredPatterns],
+						});
+					}
+					
+					// Update pagination state
+					if (json?.posts.length < queryParams.per_page) {
+						setHasMore(false);
+					} else {
 						dispatch({
 							type: "SET_PATTERNS_PAGE",
-							patternsPage: 1
+							patternsPage: patternsPage + 1
 						});
 					}
 				}
@@ -156,12 +99,12 @@ const usePatternQuery = () => {
 			}
 		};
 
-		if (filter.category !== "all" || searchInput !== "" || (filter.contentType && filter.contentType !== "all")) {
-			patternFetch();
-		}
+		// Always fetch patterns when filters change
+		patternFetch();
+		
 		const onIntersection = (items) => {
 			const loaderItem = items[0];
-			if (loaderItem.isIntersecting && hasMore && filter.category === 'all' && (!filter.contentType || filter.contentType === 'all')) {
+			if (loaderItem.isIntersecting && hasMore && !loading) {
 				patternFetch();
 			}
 		};
@@ -178,7 +121,18 @@ const usePatternQuery = () => {
 				syncLibrary: false
 			})
 		};
-	}, [templateType, searchInput, filter.category, filter.contentType, syncLibrary, patternsPage]);
+	}, [templateType, searchInput, filter.category, filter.contentType, filter.sortedBy, syncLibrary, patternsPage]);
+
+	// Reset pagination when filters change
+	useEffect(() => {
+		if (patternsPage > 1) {
+			dispatch({
+				type: "SET_PATTERNS_PAGE",
+				patternsPage: 1
+			});
+			setHasMore(true);
+		}
+	}, [searchInput, filter.category, filter.contentType, filter.sortedBy]);
 
 	return { patterns, loading, loadMoreRef, hasMore };
 };
