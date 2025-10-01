@@ -41,13 +41,16 @@
 
 	.table-builder-library-header {
 		border: none !important;
-		background: #FFF;
-		box-shadow: 0px 6px 14px 0px #090B0F10;
+		background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+		box-shadow: 0 4px 20px rgba(9, 11, 15, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+		backdrop-filter: blur(10px);
+		border-bottom: 1px solid rgba(231, 232, 236, 0.6);
 
 		&-content {
 			display: flex;
 			justify-content: space-between;
-			padding: 15px 20px;
+			align-items: center;
+			padding: 20px 24px;
 		}
 	}
 

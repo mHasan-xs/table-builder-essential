@@ -9,25 +9,26 @@
 
 .table-builder-template-library {
 	position: relative;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 
-	// template library button  scss
+	// template library button scss
 	&-btn {
-		border-radius: 2px;
-		border: 1px solid rgba(38, 79, 218, 0.04);
-		background: rgba(59, 103, 254, 0.10) !important;
+		border-radius: 6px;
+		border: 1px solid rgba(59, 103, 254, 0.15);
+		background: linear-gradient(135deg, rgba(59, 103, 254, 0.08) 0%, rgba(59, 103, 254, 0.12) 100%) !important;
 		color: #3B67FE !important;
 		font-size: 13px;
 		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
+		font-weight: 600;
+		line-height: 1.4;
 		outline: none !important;
-		box-shadow: none !important;
+		box-shadow: 0 2px 4px rgba(59, 103, 254, 0.1) !important;
 		justify-content: center !important;
 		align-items: center;
-		gap: 4px !important;
-		padding: 9px 10px !important;
-		transition: all 0.3s ease-in-out;
-		border: 1px solid transparent;
+		gap: 6px !important;
+		padding: 10px 14px !important;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		border: 1px solid rgba(59, 103, 254, 0.15);
 
 		&:hover {
 			border: 1px solid rgba(38, 79, 218, 0.50);
@@ -41,12 +42,26 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		z-index: 999;
-		box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.1), 0 1px 9px rgba(0, 0, 0, 0.2);
-		transition: all 0.3s ease-in-out;
+		z-index: 999999;
+		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+		           0 0 0 1px rgba(0, 0, 0, 0.05);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		width: 100%;
 		height: 100%;
-		background-color: #fff;
+		background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+		backdrop-filter: blur(20px);
+		animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+		@keyframes slideIn {
+			from {
+				opacity: 0;
+				transform: translateY(20px) scale(0.95);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+			}
+		}
 
 		.table-builder-library-header {
 			&-content {
@@ -78,7 +93,7 @@
 		position: relative;
 
 		&__spinner {
-			background-color: #EDEFF4;
+			background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -89,6 +104,7 @@
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
+			backdrop-filter: blur(8px);
 		}
 	}
 
@@ -96,7 +112,8 @@
 		position: static;
 
 		&-content {
-			background-color: #EDEFF4 !important;
+			background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+			min-height: 100vh;
 		}
 	}
 
@@ -105,36 +122,51 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-
+		padding: 4rem 2rem;
+		// animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
 		margin: {
-			top: 10%;
+			top: 5%;
 			left: auto;
 			right: auto;
 		}
 
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
 		h4 {
-			color: #111722;
+			color: #1e293b;
 			text-align: center;
-			font-family: Roboto;
-			font-size: 50px;
-			font-style: normal;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+			font-size: clamp(2rem, 4vw, 3.125rem);
 			font-weight: 700;
-			line-height: normal;
-			text-transform: capitalize;
+			line-height: 1.2;
+			text-transform: none;
 			margin: 0 !important;
-			margin-top: 50px !important;
+			margin-top: 2rem !important;
+			background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
 		}
 
 		p {
-			max-width: 410px;
-			color: #4D4E50;
+			max-width: 28rem;
+			color: #64748b;
 			text-align: center;
-			font-family: Roboto;
-			font-size: 16px;
-			font-style: normal;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+			font-size: 1.125rem;
 			font-weight: 400;
-			line-height: 24px;
+			line-height: 1.75;
+			margin-top: 1rem;
 		}
 	}
 }
@@ -142,5 +174,53 @@
 .edit-post-header {
 	.table-builder-template-library-btn {
 		margin: 0px 4px 0px 8px;
+	}
+}
+
+// Responsive Improvements for Main Container
+@media (max-width: 768px) {
+	.table-builder-template-library {
+		&.table-builder-template-library-sidebar {
+			padding: 0;
+			
+			.edit-post-header {
+				.table-builder-template-library-btn {
+					margin: 0px 2px 0px 4px;
+					padding: 8px 12px !important;
+					font-size: 12px;
+				}
+			}
+		}
+		
+		&-empty {
+			padding: 2rem 1rem;
+			
+			h4 {
+				font-size: clamp(1.5rem, 3vw, 2rem) !important;
+				margin-top: 1rem !important;
+			}
+			
+			p {
+				font-size: 1rem;
+				max-width: 20rem;
+			}
+		}
+	}
+}
+
+@media (max-width: 480px) {
+	.table-builder-template-library {
+		&-empty {
+			padding: 1.5rem 1rem;
+			
+			h4 {
+				font-size: 1.25rem !important;
+			}
+			
+			p {
+				font-size: 0.875rem;
+				max-width: 18rem;
+			}
+		}
 	}
 }

@@ -13,44 +13,55 @@
 		position: relative;
 		width: 100%;
 		box-sizing: border-box;
-		margin-bottom: 30px;
-		padding: 3px 3px 12px 3px;
-		background-color: #FFFFFF;
-		border: 1px solid #FFFFFF;
-		transition: all 0.3s ease-in-out;
-		box-shadow: 0 2px 6px -2px #090B0F12;
-		cursor: pointer;
-
-		&__title {
-			padding-top: 11px;
-			color: #111722;
-			font-weight: 400;
-			font-size: 14px;
-			line-height: 17px;
-			text-align: center;
-			font-family: "Roboto", sans-serif;
-
-			.item-title {
-				position: relative;
+		margin-bottom: 24px;
+		}
+					/* Keep a small inline marker for accessibility if needed */
+					content: "";
+					display: none;
+				}
 			}
+		}
 
-			&.is-premium {
-				.item-title {
-					&::after {
-						content: "Pro";
-						background-color: #FE0467;
-						color: #fff;
-						font-weight: 500;
-						font-size: 13px;
-						display: inline-flex;
-						font-family: "Roboto", sans-serif;
-						width: 34px;
-						height: 17px;
-						border-radius: 3px;
-						margin-left: 10px;
-						justify-content: center;
-						align-items: center;
-					}
+		// Absolute positioned Pro badge at top-right of the card
+		.table-builder-library-list-item {
+			&:has(.table-builder-library-list-item__title.is-premium) {
+				&::before {
+					content: "Pro";
+					position: absolute;
+					top: 10px;
+					right: 10px;
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					padding: 6px 10px;
+					background: linear-gradient(90deg, #ff6aa6 0%, #fe0467 100%);
+					color: #fff;
+					font-weight: 700;
+					font-size: 12px;
+					border-radius: 999px;
+					box-shadow: 0 8px 20px rgba(254, 4, 103, 0.12);
+					z-index: 6;
+				}
+			}
+		
+			// Fallback for environments not supporting :has()
+			&.has-premium-badge::before {
+				content: "Pro";
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				padding: 6px 10px;
+				background: linear-gradient(90deg, #ff6aa6 0%, #fe0467 100%);
+				color: #fff;
+				font-weight: 700;
+				font-size: 12px;
+				border-radius: 999px;
+				box-shadow: 0 8px 20px rgba(254, 4, 103, 0.12);
+				z-index: 6;
+			}
 				}
 			}
 		}
@@ -60,12 +71,25 @@
 				position: relative;
 				overflow: hidden;
 				cursor: pointer;
-				display: inline-flex;
-				border: 1px solid #E7E8EC;
+				display: block;
+				border: none;
+				border-radius: 12px 12px 0 0;
+				background: #f8f9fa;
 
 				img {
-					// height: auto;
-					max-width: 100%;
+					width: 100%;
+					height: auto;
+					display: block;
+					transition: transform 0.3s ease;
+					border-radius: 12px 12px 0 0;
+				}
+
+				&:hover .table-builder-library-list-item-inner-content-overlay {
+					opacity: 1;
+
+					button {
+						transform: translateY(0) scale(1);
+					}
 				}
 
 				&.is-loading {
@@ -75,13 +99,10 @@
 
 						button {
 							pointer-events: none;
-							opacity: 1;
-							box-shadow: unset;
-							outline: unset;
-							background: transparent;
-							border-radius: 4px;
-							border: 1px solid rgba(255, 255, 255, 0.50);
-							color: #FFF;
+							transform: translateY(0) scale(1);
+							background: rgba(255, 255, 255, 0.9);
+							color: #3B67FE;
+							border-color: rgba(59, 103, 254, 0.3);
 						}
 					}
 				}
@@ -106,28 +127,31 @@
 				left: 0;
 				width: 100%;
 				height: 100%;
-				background: rgba(59, 103, 254, 0.70);
-				display: inline-flex;
+				background: linear-gradient(135deg, rgba(59, 103, 254, 0.9) 0%, rgba(79, 70, 229, 0.9) 100%);
+				display: flex;
 				justify-content: center;
 				align-items: center;
 				opacity: 0;
-				transition: all 0.3s ease-in-out;
-				z-index: 1;
+				transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+				z-index: 2;
+				backdrop-filter: blur(4px);
 
 				button {
-					transition: all 0.3s ease-in-out;
-					transform: translate(0, 5px);
-					background: #FFF;
-					color: #111722;
+					transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+					transform: translateY(8px) scale(0.95);
+					background: rgba(255, 255, 255, 0.95);
+					color: #1a202c;
 					flex-direction: row-reverse;
-					padding: 10px 14px !important;
+					padding: 12px 20px !important;
 					gap: 8px !important;
-					font-family: "Roboto", sans-serif;
+					font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 					font-size: 14px;
-					font-weight: 500;
+					font-weight: 600;
 					height: unset;
-					border-radius: 4px;
-					border: 1px solid transparent;
+					border-radius: 8px;
+					border: 2px solid rgba(255, 255, 255, 0.2);
+					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+					backdrop-filter: blur(10px);
 
 					svg {
 						fill: transparent;
@@ -137,15 +161,21 @@
 						}
 					}
 
-					&:hover,
-					&:active,
+					&:hover {
+						transform: translateY(0) scale(1);
+						background: #ffffff;
+						color: #3B67FE;
+						border-color: rgba(59, 103, 254, 0.3);
+						box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+					}
+
+					&:active {
+						transform: translateY(1px) scale(0.98);
+					}
+
 					&:focus {
-						box-shadow: unset;
-						outline: unset;
-						background: transparent;
-						color: #FFF;
-						border-radius: 4px;
-						border: 1px solid rgba(255, 255, 255, 0.50);
+						outline: none;
+						box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(59, 103, 254, 0.3);
 
 						svg {
 							fill: transparent;
@@ -369,5 +399,64 @@
 
 	40% {
 		box-shadow: 0 2.5em 0 0;
+	}
+}
+
+// Responsive Design Improvements
+@media (max-width: 768px) {
+	.table-builder-page,
+	.table-builder-pattern,
+	.table-builder-template {
+		.table-builder-library-list-item {
+			margin-bottom: 16px;
+			
+			&__title {
+				padding: 12px 10px 10px 10px;
+				font-size: 13px;
+			}
+
+			&:hover {
+				transform: translateY(-2px);
+			}
+		}
+
+		.table-builder-library-list-item-inner-content-overlay {
+			padding: 12px;
+			
+			.table-builder-list-item-btn {
+				padding: 8px 16px;
+				font-size: 13px;
+				
+				&:not(:last-child) {
+					margin-right: 8px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 480px) {
+	.table-builder-page,
+	.table-builder-pattern,
+	.table-builder-template {
+		.table-builder-library-list-item {
+			&__title {
+				padding: 10px 8px;
+				font-size: 12px;
+			}
+		}
+
+		.table-builder-library-list-item-inner-content-overlay {
+			padding: 8px;
+			
+			.table-builder-list-item-btn {
+				padding: 6px 12px;
+				font-size: 12px;
+				
+				&:not(:last-child) {
+					margin-right: 6px;
+				}
+			}
+		}
 	}
 }

@@ -2,33 +2,40 @@
 	position: relative;
 
 	input {
-		font-size: 13px;
+		font-size: 14px;
 		font-weight: 400;
-		padding: 5px 18px 5px 18px;
-		font-family: "Roboto", sans-serif;
+		padding: 12px 45px 12px 16px;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 		border-radius: 6px;
-		width: 242px;
-		max-width: 242px;
-		transition: all 0.3s;
-		cursor: pointer;
-		border: 1px solid #CDD0DF;
-		color: #111827;
+		width: 280px;
+		max-width: 280px;
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: text;
+		border: 1px solid #e2e8f0;
+		color: #1a202c;
+		background: #ffffff;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 
 		@media (max-width: 768px) {
 			width: 200px;
 		}
 
+		&:hover {
+			border-color: #cbd5e0;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+		}
+
 		&:focus {
-			border: 1px solid #3B67FE;
-			background: #FFF;
-			box-shadow: 0px 0px 0px 3px rgba(59, 103, 254, 0.14);
-			cursor: text;
+			border: 2px solid #3B67FE;
+			background: #ffffff;
+			box-shadow: 0 0 0 3px rgba(59, 103, 254, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
+			outline: none;
 		}
 
 		&::placeholder {
-			color: #111827;
-			font-size: 13px;
-			font-family: "Roboto", sans-serif;
+			color: #718096;
+			font-size: 14px;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 		}
 	}
 
@@ -40,14 +47,20 @@
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);
-		right: 10px;
+		right: 12px;
 		cursor: pointer;
-		bottom: -7px;
+		z-index: 2;
+		transition: all 0.2s ease;
+
+		&:hover {
+			transform: translateY(-50%) scale(1.1);
+		}
 
 		svg {
-			fill: #808184;
-			height: 28px;
-			width: 28px;
+			fill: #a0aec0;
+			height: 20px;
+			width: 20px;
+			transition: fill 0.2s ease;
 		}
 	}
 
@@ -58,4 +71,13 @@
 			}
 		}
 	}
+}
+
+// More specific override to prevent other plugins from forcing a larger radius
+// This targets the search input only when used inside the Table Builder Template Library
+// Keep this specific selector to avoid globally overriding other plugins/components.
+.table-builder-template-library .search-container input,
+.table-builder-template-library .search-container input[type="search"],
+.table-builder-template-library .search-container input[type="text"] {
+    border-radius: 6px !important;
 }
