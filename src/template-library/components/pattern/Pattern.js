@@ -32,13 +32,20 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 		'table-builder-library-list-item-inner-content-thumbnail',
 		{ 'is-loading': patternImporting },
 	);
+	// Check if pattern is pro: either the pattern itself or any of its groups
+	const isProPattern = pattern?.package === 'pro' || 
+		(pattern?.groups && pattern.groups.some(group => group.package === 'pro'));
+		
 	const listItemClass = classNames(
 		'table-builder-library-list-item',
-		{ 'pro-inactive': pattern?.package === 'pro' && !isProActive },
+		{ 
+			'pro-inactive': isProPattern && !isProActive,
+			'has-premium-badge': isProPattern,
+		},
 	);
 	const titleClass = classNames(
 		'table-builder-library-list-item__title',
-		{ 'is-premium': pattern?.package === 'pro' },
+		{ 'is-premium': isProPattern },
 	);
 
 	return (
@@ -46,7 +53,7 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 			<div className={thumbnailClass}>
 				<LazyImage src={pattern?.thumbnail} alt={pattern?.title} />
 				<div className="table-builder-library-list-item-inner-content-overlay">
-					{(pattern?.package === 'pro' && isProActive) &&
+					{(isProPattern && isProActive) &&
 						<Button
 							onClick={async () => {
 								setPatternImporting(true);
@@ -61,13 +68,13 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 						</Button>
 					}
 
-					{(pattern?.package === 'pro' && !isProActive) &&
+					{(isProPattern && !isProActive) &&
 						<ExternalLink href="https://wpgutenkit.com/pricing/">
 							{__('Requires GutenKit Blocks PRO', 'gutenkit-blocks-addon')}
 						</ExternalLink>
 					}
 
-					{pattern?.package === 'free' &&
+					{!isProPattern &&
 						<Button
 							onClick={async () => {
 								setPatternImporting(true);

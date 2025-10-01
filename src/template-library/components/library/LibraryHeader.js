@@ -66,17 +66,6 @@ const LibraryHeader = () => {
 			type: 'SET_LOAD_LIBRARY',
 			loadLibrary: !loadLibrary
 		})
-
-		// dispatch({
-		// 	type: 'SET_IS_SINGLE_PAGE',
-		// 	isSinglePage: false
-		// })
-
-		// dispatch({
-		// 	type: 'SET_TEMPLATE_TYPE',
-		// 	templateType: 'patterns'
-		// })
-
 	}
 
 	// new code 

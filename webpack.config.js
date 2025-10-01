@@ -14,9 +14,6 @@ module.exports = {
 	},
 	entry: {
 		...defaultConfig.entry(),
-		// Main plugin entry point
-		"table-builder-essential": ['./src/index.js'],
-		// Template library specific entry
 		"template-library/template-library": ['./src/template-library/editor-template-library.js'],
 	},
 	output: {

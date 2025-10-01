@@ -83,12 +83,7 @@ class Table_Builder_Essential_REST_API
             'permission_callback' => [$this, 'check_read_permission'],
         ]);
 
-        // Groups endpoint
-        register_rest_route('table-builder/v1', '/layout-manager-api/groups', [
-            'methods' => ['GET'],
-            'callback' => [$this, 'get_groups'],
-            'permission_callback' => [$this, 'check_read_permission'],
-        ]);
+
 
         // Single template endpoint
         register_rest_route('table-builder/v1', '/layout-manager-api/template/(?P<id>\d+)', [
@@ -398,7 +393,7 @@ class Table_Builder_Essential_REST_API
         // Handle category filter
         if (!empty($category) && $category !== 'all') {
             $args['tax_query'][] = [
-                'taxonomy' => 'table_layout_group_categories',
+                'taxonomy' => 'table_pattern_categories',
                 'field' => 'slug',
                 'terms' => $category,
             ];
@@ -446,24 +441,8 @@ class Table_Builder_Essential_REST_API
                 $required_plugins = get_post_meta($post_id, '_required_plugins', true) ?: [];
                 $download_count = get_post_meta($post_id, '_download_count', true) ?: 0;
 
-                // Get taxonomies
-                $groups = wp_get_post_terms($post_id, 'table_layout_groups');
-                $categories = wp_get_post_terms($post_id, 'table_layout_group_categories');
-
-                // Format groups
-                $formatted_groups = [];
-                foreach ($groups as $group) {
-                    $group_package = get_term_meta($group->term_id, '_package_type', true) ?: 'free';
-                    $group_thumbnail = get_term_meta($group->term_id, '_thumbnail_url', true) ?: '';
-
-                    $formatted_groups[] = [
-                        'id' => (int) $group->term_id,
-                        'name' => sanitize_text_field($group->name),
-                        'slug' => sanitize_title($group->slug),
-                        'package' => sanitize_text_field($group_package),
-                        'thumbnail' => esc_url_raw($group_thumbnail),
-                    ];
-                }
+                // Get pattern categories
+                $categories = wp_get_post_terms($post_id, 'table_pattern_categories');
 
                 // Format categories
                 $formatted_categories = [];
@@ -496,7 +475,6 @@ class Table_Builder_Essential_REST_API
                     'type' => sanitize_text_field($package_type),
                     'package' => sanitize_text_field($package_type),
                     'required_plugins' => array_map('sanitize_text_field', (array) $required_plugins),
-                    'groups' => $formatted_groups,
                     'categories' => $formatted_categories,
                     'download_count' => (int) $download_count,
                     'meta' => [
@@ -526,7 +504,7 @@ class Table_Builder_Essential_REST_API
     public function get_categories($request)
     {
         $terms = get_terms([
-            'taxonomy' => 'table_layout_group_categories',
+            'taxonomy' => 'table_pattern_categories',
             'hide_empty' => false,
         ]);
 
@@ -536,56 +514,35 @@ class Table_Builder_Essential_REST_API
 
         $categories = [];
         foreach ($terms as $term) {
+            // Get accurate count of published posts for this category
+            $post_count = new WP_Query([
+                'post_type' => 'table-layout-manager',
+                'post_status' => 'publish',
+                'tax_query' => [
+                    [
+                        'taxonomy' => 'table_pattern_categories',
+                        'field' => 'term_id',
+                        'terms' => $term->term_id,
+                    ],
+                ],
+                'fields' => 'ids',
+                'nopaging' => true,
+            ]);
+            
             $categories[] = [
                 'id' => $term->term_id,
                 'title' => $term->name,
                 'name' => $term->name,
                 'slug' => $term->slug,
                 'description' => $term->description,
-                'count' => $term->count,
+                'count' => $post_count->found_posts,
             ];
         }
 
         return new WP_REST_Response($categories, 200);
     }
 
-    /**
-     * Get groups.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response
-     */
-    public function get_groups($request)
-    {
-        $terms = get_terms([
-            'taxonomy' => 'table_layout_groups',
-            'hide_empty' => false,
-        ]);
 
-        if (is_wp_error($terms)) {
-            return new WP_REST_Response([], 200);
-        }
-
-        $groups = [];
-        foreach ($terms as $term) {
-            $package_type = get_term_meta($term->term_id, '_package_type', true) ?: 'free';
-            $thumbnail = get_term_meta($term->term_id, '_thumbnail_url', true) ?: '';
-
-            $groups[] = [
-                'id' => $term->term_id,
-                'title' => $term->name,
-                'name' => $term->name,
-                'slug' => $term->slug,
-                'description' => $term->description,
-                'count' => $term->count,
-                'package' => $package_type,
-                'thumbnail' => $thumbnail,
-            ];
-        }
-
-        return new WP_REST_Response($groups, 200);
-    }
 
     /**
      * Get single template.
@@ -613,9 +570,8 @@ class Table_Builder_Essential_REST_API
         $required_plugins = get_post_meta($id, '_required_plugins', true) ?: [];
         $download_count = get_post_meta($id, '_download_count', true) ?: 0;
 
-        // Get taxonomies
-        $groups = wp_get_post_terms($id, 'table_layout_groups');
-        $categories = wp_get_post_terms($id, 'table_layout_group_categories');
+        // Get pattern categories
+        $categories = wp_get_post_terms($id, 'table_pattern_categories');
 
         $is_pro = ($package_type === 'pro');
 
@@ -636,7 +592,6 @@ class Table_Builder_Essential_REST_API
             'type' => $package_type,
             'package' => $package_type,
             'required_plugins' => $required_plugins,
-            'groups' => $groups,
             'categories' => $categories,
             'download_count' => (int) $download_count,
         ];
@@ -687,12 +642,7 @@ class Table_Builder_Essential_REST_API
         ]);
 
         $categories = get_terms([
-            'taxonomy' => 'table_layout_group_categories',
-            'hide_empty' => false,
-        ]);
-
-        $groups = get_terms([
-            'taxonomy' => 'table_layout_groups',
+            'taxonomy' => 'table_pattern_categories',
             'hide_empty' => false,
         ]);
 
@@ -704,12 +654,10 @@ class Table_Builder_Essential_REST_API
             'data' => [
                 'templates' => $templates_query->found_posts,
                 'categories' => is_array($categories) ? count($categories) : 0,
-                'groups' => is_array($groups) ? count($groups) : 0,
             ],
             'endpoints' => [
                 'patterns' => '/wp-json/table-builder/v1/layout-manager-api/patterns',
                 'categories' => '/wp-json/table-builder/v1/layout-manager-api/patterns/categories',
-                'groups' => '/wp-json/table-builder/v1/layout-manager-api/groups',
                 'single_template' => '/wp-json/table-builder/v1/layout-manager-api/template/{id}',
                 'download_count' => '/wp-json/table-builder/v1/layout-manager-api/download-count/{id}',
                 'status' => '/wp-json/table-builder/v1/layout-manager-api/status'

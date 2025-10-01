@@ -142,24 +142,24 @@ add_action('init', 'table_builder_essential_register_layout_manager_post_type');
  */
 function table_builder_essential_register_layout_manager_taxonomies()
 {
-    // Register Group taxonomy
-    $group_labels = array(
-        'name'              => _x('Groups', 'taxonomy general name', 'table-builder-essential'),
-        'singular_name'     => _x('Group', 'taxonomy singular name', 'table-builder-essential'),
-        'search_items'      => __('Search Groups', 'table-builder-essential'),
-        'all_items'         => __('All Groups', 'table-builder-essential'),
-        'parent_item'       => __('Parent Group', 'table-builder-essential'),
-        'parent_item_colon' => __('Parent Group:', 'table-builder-essential'),
-        'edit_item'         => __('Edit Group', 'table-builder-essential'),
-        'update_item'       => __('Update Group', 'table-builder-essential'),
-        'add_new_item'      => __('Add New Group', 'table-builder-essential'),
-        'new_item_name'     => __('New Group Name', 'table-builder-essential'),
-        'menu_name'         => __('Groups', 'table-builder-essential'),
+    // Register Pattern Categories taxonomy
+    $pattern_category_labels = array(
+        'name'              => _x('Pattern Categories', 'taxonomy general name', 'table-builder-essential'),
+        'singular_name'     => _x('Pattern Category', 'taxonomy singular name', 'table-builder-essential'),
+        'search_items'      => __('Search Pattern Categories', 'table-builder-essential'),
+        'all_items'         => __('All Pattern Categories', 'table-builder-essential'),
+        'parent_item'       => __('Parent Pattern Category', 'table-builder-essential'),
+        'parent_item_colon' => __('Parent Pattern Category:', 'table-builder-essential'),
+        'edit_item'         => __('Edit Pattern Category', 'table-builder-essential'),
+        'update_item'       => __('Update Pattern Category', 'table-builder-essential'),
+        'add_new_item'      => __('Add New Pattern Category', 'table-builder-essential'),
+        'new_item_name'     => __('New Pattern Category Name', 'table-builder-essential'),
+        'menu_name'         => __('Pattern Categories', 'table-builder-essential'),
     );
 
-    $group_args = array(
-        'labels'             => $group_labels,
-        'description'        => __('Groups for table layouts', 'table-builder-essential'),
+    $pattern_category_args = array(
+        'labels'             => $pattern_category_labels,
+        'description'        => __('Categories for table layout patterns', 'table-builder-essential'),
         'hierarchical'       => true,
         'public'             => false,
         'publicly_queryable' => false,
@@ -170,41 +170,9 @@ function table_builder_essential_register_layout_manager_taxonomies()
         'show_in_quick_edit' => true,
         'show_admin_column'  => true,
         'show_in_rest'       => true,
-        'rest_base'          => 'table-layout-groups',
+        'rest_base'          => 'table-pattern-categories',
     );
-    register_taxonomy('table_layout_groups', array('table-layout-manager'), $group_args);
-
-    // Register Group Categories taxonomy
-    $group_category_labels = array(
-        'name'              => _x('Group Categories', 'taxonomy general name', 'table-builder-essential'),
-        'singular_name'     => _x('Group Category', 'taxonomy singular name', 'table-builder-essential'),
-        'search_items'      => __('Search Group Categories', 'table-builder-essential'),
-        'all_items'         => __('All Group Categories', 'table-builder-essential'),
-        'parent_item'       => __('Parent Group Category', 'table-builder-essential'),
-        'parent_item_colon' => __('Parent Group Category:', 'table-builder-essential'),
-        'edit_item'         => __('Edit Group Category', 'table-builder-essential'),
-        'update_item'       => __('Update Group Category', 'table-builder-essential'),
-        'add_new_item'      => __('Add New Group Category', 'table-builder-essential'),
-        'new_item_name'     => __('New Group Category Name', 'table-builder-essential'),
-        'menu_name'         => __('Group Categories', 'table-builder-essential'),
-    );
-
-    $group_category_args = array(
-        'labels'             => $group_category_labels,
-        'description'        => __('Categories for table layout groups', 'table-builder-essential'),
-        'hierarchical'       => true,
-        'public'             => false,
-        'publicly_queryable' => false,
-        'show_ui'            => true,
-        'show_in_menu'       => true,
-        'show_in_nav_menus'  => false,
-        'show_tagcloud'      => true,
-        'show_in_quick_edit' => true,
-        'show_admin_column'  => true,
-        'show_in_rest'       => true,
-        'rest_base'          => 'table-layout-group-categories',
-    );
-    register_taxonomy('table_layout_group_categories', array('table-layout-manager'), $group_category_args);
+    register_taxonomy('table_pattern_categories', array('table-layout-manager'), $pattern_category_args);
 }
 
 add_action('init', 'table_builder_essential_register_layout_manager_taxonomies');
