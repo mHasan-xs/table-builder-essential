@@ -64,13 +64,13 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 							className='table-builder-import-button'
 							icon={patternImporting ? <Spinner className='importing-spinner' /> : <Download />}
 							disabled={patternImporting ? true : false}>
-							{patternImporting ? __('Importing', 'gutenkit-blocks-addon') : __('Import', 'gutenkit-blocks-addon')}
+							{patternImporting ? __('Importing', 'table-builder-block') : __('Import', 'table-builder-block')}
 						</Button>
 					}
 
 					{(isProPattern && !isProActive) &&
 						<ExternalLink href="https://wpgutenkit.com/pricing/">
-							{__('Requires GutenKit Blocks PRO', 'gutenkit-blocks-addon')}
+							{__('Requires GutenKit Blocks PRO', 'table-builder-block')}
 						</ExternalLink>
 					}
 
@@ -85,7 +85,7 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 							className='table-builder-import-button'
 							icon={patternImporting ? <Spinner className='importing-spinner' /> : <Download />}
 							disabled={patternImporting ? true : false}>
-							{patternImporting ? __('Importing', 'gutenkit-blocks-addon') : __('Import', 'gutenkit-blocks-addon')}
+							{patternImporting ? __('Importing', 'table-builder-block') : __('Import', 'table-builder-block')}
 						</Button>
 					}
 				</div>

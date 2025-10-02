@@ -5,7 +5,7 @@ export default function ContentLoader({ type }) {
 		load: type === 'categories',
 		template: type === 'patterns',
 	});
-	// Function to render a single item
+	
 	const renderItem = (index) => (
 		<svg
 			key={index}
@@ -75,30 +75,7 @@ export default function ContentLoader({ type }) {
 			<rect x="111" y="246" width="140" height="8" rx="4" fill="url(#gradient3)" />
 		</svg>
 	);
-	// const renderTemplate = (index) => (
-	// 	<svg
-	// 		key={index}
-	// 		className="loader"
-	// 		xmlns="http://www.w3.org/2000/svg"
-	// 		viewBox="0 0 362 500"
-	// 		fill="none"
-	// 		preserveAspectRatio="xMidYMid meet">
-			
-	// 		<defs>
-	// 			<linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="translate(-2 0)">
-	// 				<stop offset="0%" style={{ stopColor: '#D7D8DD', stopOpacity: 1 }} />
-	// 				<stop offset="50%" style={{ stopColor: '#E4E5EA', stopOpacity: 1 }} />
-	// 				<stop offset="100%" style={{ stopColor: '#D7D8DD', stopOpacity: 1 }} />
-	// 				<animateTransform attributeName="gradientTransform" type="translate" values="-2 0; 0 0; 2 0" dur="1.1s" repeatCount="indefinite" />
-	// 			</linearGradient>
-	// 		</defs>
-	// 		<rect width="362" height="500" fill="white" />
-	// 		<rect x="4" y="4" width="354" height="436" fill="url(#gradient4)" />
-	// 		<rect x="20" y="458" width="200" height="8" rx="4" fill="url(#gradient4)" />
-	// 		<rect x="20" y="476" width="120" height="6" rx="3" fill="url(#gradient4)" />
-	// 		<circle cx="327" cy="470" r="15" fill="url(#gradient4)" />
-	// 	</svg>
-	// )
+
 	// Render the items based on the type
 	const renderItems = () => {
 		if (type === 'pages') {
@@ -108,9 +85,6 @@ export default function ContentLoader({ type }) {
 		} else if (type === 'categories') {
 			return Array.from({ length: itemsToRender }, (_, index) => renderCategory(index));
 		} 
-		// else if (type === 'templates') {
-		// 	return Array.from({ length: itemsToRender }, (_, index) => renderTemplate(index));
-		// }
 		return null;
 	};
 
