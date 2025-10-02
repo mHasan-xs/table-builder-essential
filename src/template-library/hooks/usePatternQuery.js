@@ -49,10 +49,8 @@ const usePatternQuery = () => {
 					setHasMore(true);
 				}
 				
-				// Show loading only when patterns array is empty
-				if (patterns && patterns.length === 0) {
-					setLoading(true);
-				}
+				// Show loading for initial load and infinite scroll
+				setLoading(true);
 				
 				// Optimize API parameters for search performance
 				let queryParams = {
@@ -94,8 +92,16 @@ const usePatternQuery = () => {
 					// Handle pagination - check if this is first page or filter change
 					const isFirstPageOrFilterChange = patternsPage === 1 || syncLibrary;
 					
+					console.log('Fetching patterns:', {
+						page: patternsPage,
+						isFirstPage: isFirstPageOrFilterChange,
+						currentPatternsCount: patterns.length,
+						newPatternsCount: filteredPatterns.length
+					});
+					
 					if (isFirstPageOrFilterChange) {
 						// First load or filter change - replace patterns
+						console.log('Replacing patterns with new data');
 						dispatch({
 							type: 'SET_PATTERNS',
 							patterns: filteredPatterns,
@@ -107,20 +113,21 @@ const usePatternQuery = () => {
 							!existingIds.includes(pattern.id || pattern.ID)
 						);
 						
+						console.log('Appending patterns:', {
+							existingIds: existingIds.length,
+							newPatterns: newPatterns.length,
+							totalAfterAppend: patterns.length + newPatterns.length
+						});
+						
 						dispatch({
 							type: 'SET_PATTERNS',
 							patterns: [...patterns, ...newPatterns],
 						});
 					}
 					
-					// Update pagination state
+					// Update pagination state - no need to increment page here since it's done in intersection observer
 					if (json?.posts.length < queryParams.per_page) {
 						setHasMore(false);
-					} else {
-						dispatch({
-							type: "SET_PATTERNS_PAGE",
-							patternsPage: patternsPage + 1
-						});
 					}
 				}
 			} catch (error) {
@@ -128,7 +135,6 @@ const usePatternQuery = () => {
 				if (error.name !== 'AbortError') {
 					console.error(`Error fetching patterns: ${error}`);
 				}
-				setLoading(false);
 			} finally {
 				setLoading(false);
 				// Clear the active request reference
@@ -140,21 +146,8 @@ const usePatternQuery = () => {
 
 		// Always fetch patterns when filters change
 		patternFetch();
-		
-		const onIntersection = (items) => {
-			const loaderItem = items[0];
-			if (loaderItem.isIntersecting && hasMore && !loading) {
-				patternFetch();
-			}
-		};
-
-		const observer = new IntersectionObserver(onIntersection);
-		if (observer && loadMoreRef.current) {
-			observer.observe(loadMoreRef.current);
-		}
 
 		return () => {
-			if (observer) observer.disconnect();
 			// Cancel any pending requests on cleanup
 			if (activeRequestRef.current) {
 				activeRequestRef.current.abort();
@@ -166,6 +159,35 @@ const usePatternQuery = () => {
 			})
 		};
 	}, [templateType, searchInput, filter.category, filter.contentType, filter.sortedBy, syncLibrary, patternsPage]);
+
+	// Separate useEffect for intersection observer to handle infinite scroll
+	useEffect(() => {
+		const onIntersection = (items) => {
+			const loaderItem = items[0];
+			if (loaderItem.isIntersecting && hasMore && !loading && patterns.length > 0) {
+				console.log('Infinite scroll triggered - loading more patterns...');
+				// Increment page to load next set of patterns
+				dispatch({
+					type: "SET_PATTERNS_PAGE",
+					patternsPage: patternsPage + 1
+				});
+			}
+		};
+
+		const observer = new IntersectionObserver(onIntersection, {
+			rootMargin: '100px' // Start loading when within 100px of the load more button
+		});
+		
+		if (loadMoreRef.current) {
+			observer.observe(loadMoreRef.current);
+		}
+
+		return () => {
+			if (observer) {
+				observer.disconnect();
+			}
+		};
+	}, [hasMore, loading, patterns.length, patternsPage]); // Dependencies for infinite scroll
 
 	// Reset pagination when filters change
 	useEffect(() => {

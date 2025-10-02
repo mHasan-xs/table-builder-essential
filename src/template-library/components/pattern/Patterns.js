@@ -66,8 +66,6 @@ const Patterns = () => {
 		await updateDownloadCount(pattern.ID);
 	}
 
-	console.log("patterns", patterns)
-
 
 	return (
 		<>
