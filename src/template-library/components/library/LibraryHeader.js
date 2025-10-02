@@ -68,36 +68,51 @@ const LibraryHeader = () => {
 		})
 	}
 
-	// new code 
+	// Optimized search with improved debouncing
 	const doSearch = useDebounce((term) => {
+		// Always update search input, even for empty values
 		dispatch({
 			type: 'SET_SEARCH_INPUT',
-			searchInput: term
-		})
-	}, 500);
+			searchInput: term || ''
+		});
+	}, 250); // Faster response for better UX
 
 	const handleChange = (value) => {
-		doSearch(value);
+		// Sanitize the value
+		const cleanValue = value ? value.trim() : '';
+		doSearch(cleanValue);
 	};
 
 	const handleClose = () => {
+		// Clear both search states to keep them synchronized
+		dispatch({
+			type: 'SET_SEARCH_INPUT',
+			searchInput: ''
+		});
+
+		dispatch({
+			type: 'SET_KEY_WORDS',
+			keyWords: ''
+		});
+
+		// Always clear patterns when closing search to trigger fresh data load
+		dispatch({
+			type: 'SET_PATTERNS',
+			patterns: [],
+		});
+
+		// Reset pagination
+		dispatch({
+			type: "SET_PATTERNS_PAGE",
+			patternsPage: 1
+		});
+
 		if (filter.category !== '' && templateType === 'patterns') {
 			dispatch({
 				type: 'SET_FILTER',
 				filter: {
 					category: 'all'
 				}
-			})
-
-			// change search input to action name
-			dispatch({
-				type: 'SET_SEARCH_INPUT',
-				searchInput: ''
-			})
-
-			dispatch({
-				type: 'SET_PATTERNS',
-				patterns: [],
 			});
 		}
 	}

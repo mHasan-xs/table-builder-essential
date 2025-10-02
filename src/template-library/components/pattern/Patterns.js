@@ -79,9 +79,18 @@ const Patterns = () => {
 					) : (
 						<>
 							{patterns &&
-								patterns.map((pattern, index) => (
-									<Pattern key={pattern?.id} pattern={pattern} onPatternImport={onPatternImport} onDownloadCount={onDownloadCount} />
-								))}
+								patterns.map((pattern, index) => {
+									// Ensure unique key using both possible ID formats and index as fallback
+									const uniqueKey = pattern?.id || pattern?.ID || `pattern-${index}`;
+									return (
+										<Pattern 
+											key={uniqueKey} 
+											pattern={pattern} 
+											onPatternImport={onPatternImport} 
+											onDownloadCount={onDownloadCount} 
+										/>
+									);
+								})}
 						</>
 					)}
 				</div>

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import useContextLibrary from '@/template-library/hooks/useContextLibrary';
 
 /**
  * Renders a component to display when no results are found.
@@ -6,6 +7,18 @@ import { __ } from '@wordpress/i18n';
  * @returns {JSX.Element} The Empty component.
  */
 const Empty = () => {
+	const { searchInput, filter } = useContextLibrary();
+	
+	// Generate dynamic message based on search context
+	const getEmptyMessage = () => {
+		if (searchInput && searchInput.trim() !== '') {
+			return __(`No table layouts found for "${searchInput}". Try different search terms or browse all layouts.`, 'table-builder-block');
+		} else if (filter.category && filter.category !== 'all' && filter.category.length > 0) {
+			return __('No table layouts found in the selected category. Try browsing other categories or clear your filters.', 'table-builder-block');
+		} else {
+			return __('We couldn\'t find any table layouts matching your criteria. Try adjusting your search terms or filters.', 'table-builder-block');
+		}
+	};
 	return (
 		<div className="table-builder-library-empty" style={{ 
 			textAlign: 'center', 
@@ -50,7 +63,7 @@ const Empty = () => {
 				margin: '0',
 				maxWidth: '400px',
 				fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-			}}>{__('We couldn\'t find any table layouts matching your criteria. Try adjusting your search terms or filters.', 'table-builder-block')}</p>
+			}}>{getEmptyMessage()}</p>
 		</div>
 	)
 }

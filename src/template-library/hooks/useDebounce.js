@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "@wordpress/element";
 
 /**
- * Debounces a callback function with a specified delay.
+ * Enhanced debounce hook with improved search performance.
  *
  * @param {function} callback - The callback function to be debounced
  * @param {number} delay - The delay in milliseconds
@@ -10,19 +10,40 @@ import { useEffect, useRef } from "@wordpress/element";
 const useDebounce = (callback, delay) => {
 	const timeOutIdRef = useRef(null);
 	const previousValueRef = useRef(null);
+	const callbackRef = useRef(callback);
+
+	// Update callback ref when callback changes
+	useEffect(() => {
+		callbackRef.current = callback;
+	}, [callback]);
 
 	useEffect(() => {
 		return () => {
-			clearTimeout(timeOutIdRef.current);
+			if (timeOutIdRef.current) {
+				clearTimeout(timeOutIdRef.current);
+			}
 		};
 	}, []);
 
 	const debounceCallback = (value) => {
-		clearTimeout(timeOutIdRef.current);
+		// Clear any existing timeout
+		if (timeOutIdRef.current) {
+			clearTimeout(timeOutIdRef.current);
+		}
 
+		// Immediate execution for empty values (clearing search)
+		if (!value || value.trim() === '') {
+			if (previousValueRef.current !== value) {
+				callbackRef.current(value);
+				previousValueRef.current = value;
+			}
+			return;
+		}
+
+		// Debounce non-empty values
 		if (value !== previousValueRef.current) {
 			timeOutIdRef.current = setTimeout(() => {
-				callback(value);
+				callbackRef.current(value);
 				previousValueRef.current = value;
 			}, delay);
 		}

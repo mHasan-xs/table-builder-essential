@@ -232,7 +232,8 @@ class Table_Builder_Essential_REST_API
         }
 
         // Allow more characters for search (letters, numbers, spaces, common punctuation)
-        if (!preg_match('/^[a-zA-Z0-9\s\-_\.\#\@\+\(\)\,\'\"]+$/u', $param)) {
+        // More permissive pattern to allow broader search terms
+        if (!preg_match('/^[\p{L}\p{N}\s\-_\.\#\@\+\(\)\,\'\"\!\?\&\%\$\*\=\[\]\{\}\|\;\:]+$/u', $param)) {
             return false;
         }
 
@@ -379,9 +380,103 @@ class Table_Builder_Essential_REST_API
             $args['order'] = 'DESC';
         }
 
-        // Handle search
-        if (!empty($search)) {
-            $args['s'] = $search;
+        // Handle search - ALGOLIA-STYLE EFFICIENT SEARCH
+        if (!empty($search) && strlen(trim($search)) > 0) {
+            global $wpdb;
+            $clean_search = trim($search);
+            
+            // Cache key for search results (5-minute cache)
+            $cache_key = 'tb_search_' . md5($clean_search . '_' . $page . '_' . $per_page);
+            $cached_results = wp_cache_get($cache_key, 'table_builder_search');
+            
+            if ($cached_results !== false) {
+                // Return cached results for instant search
+                $title_matches = $cached_results;
+            } else {
+                // Build advanced search query with multiple relevance factors
+                $search_words = explode(' ', $clean_search);
+                $search_conditions = [];
+                $order_cases = [];
+                $bind_params = [];
+                
+                // Create search conditions for each word
+                foreach ($search_words as $index => $word) {
+                    if (strlen(trim($word)) > 0) {
+                        $word = trim($word);
+                        $word_param = '%' . $wpdb->esc_like($word) . '%';
+                        $search_conditions[] = "LOWER(post_title) LIKE LOWER(%s)";
+                        $bind_params[] = $word_param;
+                    }
+                }
+                
+                if (!empty($search_conditions)) {
+                    // Advanced relevance scoring
+                    $full_search_term = '%' . $wpdb->esc_like($clean_search) . '%';
+                    $starts_with_term = $wpdb->esc_like($clean_search) . '%';
+                    
+                    $sql = "
+                        SELECT ID, post_title,
+                            (CASE 
+                                WHEN LOWER(post_title) = LOWER(%s) THEN 100                    -- Exact match
+                                WHEN LOWER(post_title) LIKE LOWER(%s) THEN 90                  -- Starts with exact phrase
+                                WHEN LOWER(post_title) LIKE LOWER(%s) THEN 80                  -- Contains exact phrase
+                                WHEN (" . implode(' AND ', $search_conditions) . ") THEN 70    -- Contains all words
+                                ELSE 50                                                         -- Partial match
+                            END) as relevance_score
+                        FROM {$wpdb->posts} 
+                        WHERE post_type = 'table-layout-manager' 
+                        AND post_status = 'publish'
+                        AND (
+                            LOWER(post_title) = LOWER(%s) OR
+                            LOWER(post_title) LIKE LOWER(%s) OR
+                            LOWER(post_title) LIKE LOWER(%s) OR
+                            (" . implode(' AND ', $search_conditions) . ")
+                        )
+                        ORDER BY 
+                            relevance_score DESC,
+                            CHAR_LENGTH(post_title) ASC,  -- Prefer shorter titles for same relevance
+                            post_title ASC
+                        LIMIT 50
+                    ";
+                    
+                    // Prepare parameters in correct order
+                    $all_params = [
+                        $clean_search,           // Exact match
+                        $starts_with_term,       // Starts with
+                        $full_search_term,       // Contains phrase
+                        ...$bind_params,         // All words conditions
+                        $clean_search,           // WHERE exact match
+                        $starts_with_term,       // WHERE starts with
+                        $full_search_term,       // WHERE contains phrase
+                        ...$bind_params          // WHERE all words conditions
+                    ];
+                    
+                    $results = $wpdb->get_results($wpdb->prepare($sql, ...$all_params));
+                    $title_matches = array_column($results, 'ID');
+                    
+                    // Cache results for 5 minutes
+                    wp_cache_set($cache_key, $title_matches, 'table_builder_search', 300);
+                } else {
+                    $title_matches = [];
+                }
+            }
+            
+            if (!empty($title_matches)) {
+                // Use our optimized search results
+                $args['post__in'] = $title_matches;
+                $args['orderby'] = 'post__in'; // Maintain our relevance order
+                
+                // Remove conflicting parameters
+                unset($args['s'], $args['search']);
+            } else {
+                // No matches found - return empty results efficiently
+                $args['post__in'] = [0];
+                unset($args['s'], $args['search']);
+            }
+            
+            // Optimize query performance
+            $args['no_found_rows'] = true; // Skip counting for faster queries
+            $args['suppress_filters'] = false;
         }
 
         // Handle specific template ID
@@ -390,8 +485,8 @@ class Table_Builder_Essential_REST_API
             $args['posts_per_page'] = 1;
         }
 
-        // Handle category filter
-        if (!empty($category) && $category !== 'all') {
+        // Handle category filter - BUT NOT when we have a search term (search takes priority)
+        if (!empty($category) && $category !== 'all' && empty($search)) {
             $args['tax_query'][] = [
                 'taxonomy' => 'table_pattern_categories',
                 'field' => 'slug',
@@ -399,8 +494,8 @@ class Table_Builder_Essential_REST_API
             ];
         }
 
-        // Handle type filter (free/pro)
-        if (!empty($type) && $type !== 'all') {
+        // Handle type filter (free/pro) - BUT NOT when we have a search term (search takes priority)
+        if (!empty($type) && $type !== 'all' && empty($search)) {
             if ($type === 'free') {
                 $args['meta_query'][] = [
                     'relation' => 'OR',
@@ -423,7 +518,20 @@ class Table_Builder_Essential_REST_API
             }
         }
 
+        // Disable WordPress default search completely when we have a custom search
+        if (!empty($search)) {
+            add_filter('posts_search', '__return_empty_string', 999);
+            add_filter('posts_search_orderby', '__return_empty_string', 999);
+        }
+        
         $query = new WP_Query($args);
+        
+        // Remove filters after query
+        if (!empty($search)) {
+            remove_filter('posts_search', '__return_empty_string', 999);
+            remove_filter('posts_search_orderby', '__return_empty_string', 999);
+        }
+        
         $posts = [];
 
         if ($query->have_posts()) {
@@ -437,7 +545,7 @@ class Table_Builder_Essential_REST_API
 
                 // Get meta fields
                 $package_type = get_post_meta($post_id, '_package_type', true) ?: 'free';
-                $thumbnail = get_post_meta($post_id, '_thumbnail_url', true) ?: '';
+                $thumbnail = get_the_post_thumbnail_url($post_id, 'medium') ?: '';
                 $required_plugins = get_post_meta($post_id, '_required_plugins', true) ?: [];
                 $download_count = get_post_meta($post_id, '_download_count', true) ?: 0;
 
@@ -485,13 +593,29 @@ class Table_Builder_Essential_REST_API
             wp_reset_postdata();
         }
 
-        return new WP_REST_Response([
+        // Prepare response with better empty state handling
+        $response_data = [
             'posts' => $posts,
             'total' => $query->found_posts,
             'pages' => $query->max_num_pages,
             'current_page' => $page,
             'per_page' => $per_page,
-        ], 200);
+            'search_term' => $search,
+            'has_results' => !empty($posts),
+        ];
+        
+        // Add search context for debugging
+        if (!empty($search) && empty($posts)) {
+            $response_data['message'] = 'No patterns found matching your search criteria.';
+            $response_data['suggestions'] = [
+                'Try different keywords',
+                'Check spelling',
+                'Use fewer or more general terms',
+                'Browse categories instead'
+            ];
+        }
+        
+        return new WP_REST_Response($response_data, 200);
     }
 
     /**
@@ -566,7 +690,7 @@ class Table_Builder_Essential_REST_API
 
         // Get meta fields
         $package_type = get_post_meta($id, '_package_type', true) ?: 'free';
-        $thumbnail = get_post_meta($id, '_thumbnail_url', true) ?: '';
+        $thumbnail = get_the_post_thumbnail_url($id, 'large') ?: '';
         $required_plugins = get_post_meta($id, '_required_plugins', true) ?: [];
         $download_count = get_post_meta($id, '_download_count', true) ?: 0;
 
@@ -664,6 +788,8 @@ class Table_Builder_Essential_REST_API
             ]
         ], 200);
     }
+
+
 }
 
 // Initialize the REST API
