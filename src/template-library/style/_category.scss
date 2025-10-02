@@ -150,6 +150,39 @@
 							}
 						}
 					}
+
+					&.search-disabled {
+						opacity: 0.5;
+						cursor: not-allowed;
+						pointer-events: none;
+						background-color: #f8f9fa !important;
+						color: #6c757d !important;
+						border-color: #dee2e6 !important;
+
+						>.list-title-count {
+							color: #adb5bd !important;
+						}
+
+						&:hover {
+							background-color: #f8f9fa !important;
+							color: #6c757d !important;
+							border-color: #dee2e6 !important;
+
+							>.list-title-count {
+								color: #adb5bd !important;
+							}
+						}
+
+						&.is-active {
+							background-color: #f8f9fa !important;
+							color: #6c757d !important;
+							border-color: #dee2e6 !important;
+
+							>.list-title-count {
+								color: #adb5bd !important;
+							}
+						}
+					}
 				}
 			}
 		}

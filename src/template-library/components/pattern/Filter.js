@@ -9,8 +9,11 @@ import RadioField from '../common/RadioField';
  * @returns {JSX.Element} The rendered Filter component.
  */
 const Filter = () => {
-	const { filter, dispatch, templateType, contentType } = useContextLibrary();
+	const { filter, dispatch, templateType, contentType, searchInput } = useContextLibrary();
 	const { categories, loading } = useCategoryQuery();
+	
+	// Check if search is active to provide visual feedback
+	const isSearchActive = searchInput && searchInput.trim().length > 0;
 	/**
 	 * Handles the category filter.
 	 *
@@ -101,10 +104,11 @@ const Filter = () => {
 									return (
 										<li key={category.id || index} className="table-builder-library-filter-category-list-item">
 											<button
-												className={`table-builder-library-filter-category-list-title ${isActive ? 'is-active' : ''}`}
-												onClick={() => handleCategoryFilter(category.slug)}
+												className={`table-builder-library-filter-category-list-title ${isActive ? 'is-active' : ''} ${isSearchActive ? 'search-disabled' : ''}`}
+												onClick={() => !isSearchActive && handleCategoryFilter(category.slug)}
 												aria-pressed={isActive}
-												title={`Filter by ${category.title} (${category.count} items)`}
+												disabled={isSearchActive}
+												title={isSearchActive ? __('Categories are disabled during search - search works across all categories', 'table-builder-essential') : `Filter by ${category.title} (${category.count} items)`}
 											>
 												<span className="category-title">{category.title}</span>
 												<span className='list-title-count'>{category.count}</span>

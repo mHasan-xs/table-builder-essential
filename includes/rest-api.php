@@ -385,13 +385,14 @@ class Table_Builder_Essential_REST_API
             global $wpdb;
             $clean_search = trim($search);
             
-            // Cache key for search results (5-minute cache)
-            $cache_key = 'tb_search_' . md5($clean_search . '_' . $page . '_' . $per_page);
-            $cached_results = wp_cache_get($cache_key, 'table_builder_search');
+            // For search with sorting, we need to cache the IDs but apply sort in WP_Query
+            // Only cache the search IDs (without sort-specific ordering)
+            $search_cache_key = 'tb_search_ids_' . md5($clean_search);
+            $cached_search_ids = wp_cache_get($search_cache_key, 'table_builder_search');
             
-            if ($cached_results !== false) {
-                // Return cached results for instant search
-                $title_matches = $cached_results;
+            if ($cached_search_ids !== false) {
+                // Use cached search IDs
+                $title_matches = $cached_search_ids;
             } else {
                 // Build advanced search query with multiple relevance factors
                 $search_words = explode(' ', $clean_search);
@@ -454,8 +455,8 @@ class Table_Builder_Essential_REST_API
                     $results = $wpdb->get_results($wpdb->prepare($sql, ...$all_params));
                     $title_matches = array_column($results, 'ID');
                     
-                    // Cache results for 5 minutes
-                    wp_cache_set($cache_key, $title_matches, 'table_builder_search', 300);
+                    // Cache search IDs for 5 minutes (no sort dependency for base search)
+                    wp_cache_set($search_cache_key, $title_matches, 'table_builder_search', 300);
                 } else {
                     $title_matches = [];
                 }
@@ -464,7 +465,21 @@ class Table_Builder_Essential_REST_API
             if (!empty($title_matches)) {
                 // Use our optimized search results
                 $args['post__in'] = $title_matches;
-                $args['orderby'] = 'post__in'; // Maintain our relevance order
+                
+                // Apply sort order to search results
+                if ($sort === 'popular') {
+                    // Popular sort: by download count, but only from search results
+                    $args['meta_key'] = '_download_count';
+                    $args['orderby'] = 'meta_value_num';
+                    $args['order'] = 'DESC';
+                } elseif ($sort === 'recent') {
+                    // Recent sort: by date, but only from search results
+                    $args['orderby'] = 'date';
+                    $args['order'] = 'DESC';
+                } else {
+                    // Default: maintain relevance order for search
+                    $args['orderby'] = 'post__in';
+                }
                 
                 // Remove conflicting parameters
                 unset($args['s'], $args['search']);

@@ -80,6 +80,18 @@ const LibraryHeader = () => {
 	const handleChange = (value) => {
 		// Sanitize the value
 		const cleanValue = value ? value.trim() : '';
+		
+		// When user starts searching, clear category selection to show it's global search
+		if (cleanValue && cleanValue.length > 0 && filter.category && filter.category !== 'all') {
+			dispatch({
+				type: 'SET_FILTER',
+				filter: {
+					...filter,
+					category: 'all'
+				}
+			});
+		}
+		
 		doSearch(cleanValue);
 	};
 
@@ -121,13 +133,26 @@ const LibraryHeader = () => {
 
 	const { sortedBy } = filter || {};
 	const handleSelectChange = (val) => {
+		// Clear existing patterns to trigger fresh data load with new sort
+		dispatch({
+			type: 'SET_PATTERNS',
+			patterns: []
+		});
+		
+		// Reset pagination when changing sort
+		dispatch({
+			type: 'SET_PATTERNS_PAGE',
+			patternsPage: 1
+		});
+		
+		// Update sort filter
 		dispatch({
 			type: 'SET_FILTER',
 			filter: {
 				...filter,
 				sortedBy: val
 			}
-		})
+		});
 	}
 
 

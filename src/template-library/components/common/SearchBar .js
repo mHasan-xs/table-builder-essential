@@ -4,7 +4,7 @@ import { SearchIcon, CloseIcon } from '../icons/search';
 
 
 const SearchBar = ({ onChange, onClick, onMouseLeave, onClose, className, placeholder }) => {
-	const { keyWords, dispatch } = useContextLibrary();
+	const { keyWords, dispatch, filter } = useContextLibrary();
 
 	const sanitizeInput = (input) => {
 		const sanitized = input
@@ -21,6 +21,17 @@ const SearchBar = ({ onChange, onClick, onMouseLeave, onClose, className, placeh
 		const rawInput = event.target.value;
 		const sanitizedInput = sanitizeInput(rawInput);
 		
+		// Clear category selection immediately when user starts typing (for visual feedback)
+		if (sanitizedInput && sanitizedInput.length > 0 && filter.category && filter.category !== 'all') {
+			dispatch({
+				type: 'SET_FILTER',
+				filter: {
+					...filter,
+					category: 'all'
+				}
+			});
+		}
+		
 		dispatch({
 			type: 'SET_KEY_WORDS',
 			keyWords: sanitizedInput
@@ -28,7 +39,7 @@ const SearchBar = ({ onChange, onClick, onMouseLeave, onClose, className, placeh
 
 		// Call the onChange callback with the sanitized input value
 		onChange(sanitizedInput);
-	}, [onChange]);
+	}, [onChange, filter, dispatch]);
 
 	/**
 	 * Clears the search input and triggers the onClose callback.
