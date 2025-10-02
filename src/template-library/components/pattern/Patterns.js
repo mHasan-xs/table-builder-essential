@@ -1,41 +1,44 @@
-import useContextLibrary from "../../hooks/useContextLibrary";
-import Filter from "./Filter";
-import { useEffect } from '@wordpress/element';
+import { useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { dispatch as dataDispatch, select } from '@wordpress/data';
 import { parse } from '@wordpress/blocks';
-import Pattern from "./Pattern";
-import Empty from "../common/Empty";
-import updateTemplateBlocks from "@/template-library/includes/updateTemplateBlocks";
 import apiFetch from '@wordpress/api-fetch';
-import usePatternQuery from "@/template-library/hooks/usePatternQuery";
-import ContentLoader from "../common/ContentLoader";
-import useDownloadCount from "@/template-library/hooks/useDownloadCount";
+import useContextLibrary from '../../hooks/useContextLibrary';
+import usePatternQuery from '@/template-library/hooks/usePatternQuery';
+import useDownloadCount from '@/template-library/hooks/useDownloadCount';
+import updateTemplateBlocks from '@/template-library/includes/updateTemplateBlocks';
+import Filter from './Filter';
+import Pattern from './Pattern';
+import Empty from '../common/Empty';
+import ContentLoader from '../common/ContentLoader';
 
-/**
- * Renders the Patterns component.
- *
- * @returns {JSX.Element} The rendered Patterns component.
- */
+const API_SETTINGS_PATH = '/gutenkit/v1/settings';
+const BLOCK_EDITOR_STORE = 'core/block-editor';
+
 const Patterns = () => {
-	const { dispatch, searchInput, imageImportType, filter } = useContextLibrary();
+	const { dispatch, imageImportType, filter } = useContextLibrary();
 	const { patterns, loading, loadMoreRef, hasMore } = usePatternQuery();
-	const { insertBlocks, insertAfterBlock, replaceBlocks } = dataDispatch('core/block-editor');
-	const { getSelectedBlockClientId } = select('core/block-editor');
 	const updateDownloadCount = useDownloadCount();
 
+	const { insertBlocks, insertAfterBlock, replaceBlocks } = dataDispatch(BLOCK_EDITOR_STORE);
+	const { getSelectedBlockClientId } = select(BLOCK_EDITOR_STORE);
+
 	useEffect(() => {
-		apiFetch({ path: '/gutenkit/v1/settings' })
+		apiFetch({ path: API_SETTINGS_PATH })
 			.then((data) => {
-				const remoteImagePermission = data.settings.remote_image.status === 'active' ? 'upload' : '';
+				const remoteImagePermission = data.settings.remote_image.status === 'active' 
+					? 'upload' 
+					: '';
+				
 				dispatch({
 					type: 'SET_IMAGE_IMPORT_TYPE',
 					imageImportType: remoteImagePermission
 				});
 			})
-	}, [])
+			.catch(console.error);
+	}, [dispatch]);
 
-	const insertPattern = (content) => {
+	const insertPattern = useCallback((content) => {
 		const selectedBlockClientId = getSelectedBlockClientId();
 
 		if (selectedBlockClientId) {
@@ -45,58 +48,67 @@ const Patterns = () => {
 		} else {
 			insertBlocks(content);
 		}
-	}
+	}, [getSelectedBlockClientId, insertAfterBlock, replaceBlocks, insertBlocks]);
 
-	const onPatternImport = async (pattern) => {
+	const handlePatternImport = useCallback(async (pattern) => {
 		const content = parse(pattern.content);
-		if (imageImportType === "upload") {
-			const newUpdatedContent = await updateTemplateBlocks(content); // Await the top-level call
-			insertPattern(newUpdatedContent);
-		} else {
-			insertPattern(content);
-		}
+		
+		const processedContent = imageImportType === 'upload'
+			? await updateTemplateBlocks(content)
+			: content;
 
-		await dispatch({
+		insertPattern(processedContent);
+
+		dispatch({
 			type: 'SET_LOAD_LIBRARY',
 			loadLibrary: false
 		});
-	}
+	}, [imageImportType, insertPattern, dispatch]);
 
-	const onDownloadCount = async (pattern) => {
+	const handleDownloadCount = useCallback(async (pattern) => {
 		await updateDownloadCount(pattern.ID);
-	}
+	}, [updateDownloadCount]);
 
+	const showLoader = useMemo(() => 
+		patterns.length === 0 && loading,
+		[patterns.length, loading]
+	);
+
+	const showEmpty = useMemo(() => 
+		patterns.length === 0 && !loading,
+		[patterns.length, loading]
+	);
+
+	const renderPatterns = () => {
+		if (showLoader) {
+			return <ContentLoader type="patterns" />;
+		}
+
+		return patterns.map((pattern, index) => {
+			const uniqueKey = pattern?.id || pattern?.ID || `pattern-${index}`;
+			return (
+				<Pattern
+					key={uniqueKey}
+					pattern={pattern}
+					onPatternImport={handlePatternImport}
+					onDownloadCount={handleDownloadCount}
+				/>
+			);
+		});
+	};
 
 	return (
 		<>
 			<Filter />
 			<div className="table-builder-library-list table-builder-pattern-part">
 				<div className="table-builder-pattern">
-					{patterns && patterns.length === 0 && loading ? (
-						<ContentLoader type='patterns' />
-					) : (
-						<>
-							{patterns &&
-								patterns.map((pattern, index) => {
-									const uniqueKey = pattern?.id || pattern?.ID || `pattern-${index}`;
-									return (
-										<Pattern 
-											key={uniqueKey} 
-											pattern={pattern} 
-											onPatternImport={onPatternImport} 
-											onDownloadCount={onDownloadCount} 
-										/>
-									);
-								})}
-						</>
-					)}
+					{renderPatterns()}
 				</div>
-				{hasMore && <button className="has-more-data" ref={loadMoreRef}></button>}
-				{(patterns && patterns.length === 0 && !loading) && <Empty />}
+				{hasMore && <button className="has-more-data" ref={loadMoreRef} />}
+				{showEmpty && <Empty />}
 			</div>
-
 		</>
 	);
-}
+};
 
 export default Patterns;

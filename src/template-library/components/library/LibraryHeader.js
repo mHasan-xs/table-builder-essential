@@ -1,16 +1,19 @@
 import { Button } from '@wordpress/components';
+import { useEffect, useRef, useCallback, useMemo } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import useContextLibrary from '../../hooks/useContextLibrary';
-import { useEffect, useRef } from '@wordpress/element';
-// import GutenkitLogo from '../icons/GutenkitLogo';
-import Reload from '../icons/Reload';
-import Close from '../icons/Close';
 import useDebounce from '@/template-library/hooks/useDebounce';
 import SearchBar from '../common/SearchBar ';
 import SelectField from '../common/SelectField';
-
+import Reload from '../icons/Reload';
+import Close from '../icons/Close';
 import SynclibraryTooltip from '../icons/SynclibraryTooltip';
 import CloseTooltip from '../icons/CloseTooltip';
-import { useSelect } from '@wordpress/data';
+
+const SORT_OPTIONS = [
+	{ value: 'recent', label: 'Recent' },
+	{ value: 'popular', label: 'Popular' },
+];
 
 const useIsEditor = () => {
 	return useSelect((select) => {
@@ -19,144 +22,104 @@ const useIsEditor = () => {
 	}, []);
 };
 
-
-
 const LibraryHeader = () => {
 	const { loadLibrary, templateType, dispatch, syncLibrary, filter, showSinglePage } = useContextLibrary();
 	const isEditor = useIsEditor();
-
-	useEffect(() => {
-		document.addEventListener('keydown', function (event) {
-			if (event.key === "Escape" || event.key === "Esc") {
-				handleLoadLibrary();
-			}
-		});
-	}, [])
-
 	const activeRef = useRef(null);
 
-	// active button style
-	useEffect(() => {
-		if (activeRef.current) {
-			let button = Array.from(activeRef.current.querySelectorAll('.table-builder-library-menu-item'));
-			let activeButton = button.findIndex((element) =>
-				element.classList.contains('is-active')
-			);
-			if (activeButton !== -1) {
-				let width = button[activeButton].clientWidth + 2;
-				activeRef.current.style.setProperty(
-					'--width',
-					`${width}px`
-				);
-
-				let translateBefore = button
-					.slice(0, activeButton)
-					.reduce((acc, el) => acc + el.clientWidth + 20, 0);
-				activeRef.current.style.setProperty(
-					'--translate',
-					`${translateBefore}px`
-				);
-			}
-		}
-	}, [templateType])
-
-
-	const handleLoadLibrary = () => {
+	const handleLoadLibrary = useCallback(() => {
 		dispatch({
 			type: 'SET_LOAD_LIBRARY',
 			loadLibrary: !loadLibrary
-		})
-	}
+		});
+	}, [dispatch, loadLibrary]);
 
-	// Optimized search with improved debouncing
+	const handleEscapeKey = useCallback((event) => {
+		if (event.key === 'Escape' || event.key === 'Esc') {
+			handleLoadLibrary();
+		}
+	}, [handleLoadLibrary]);
+
+	useEffect(() => {
+		document.addEventListener('keydown', handleEscapeKey);
+		return () => document.removeEventListener('keydown', handleEscapeKey);
+	}, [handleEscapeKey]);
+
+	useEffect(() => {
+		const container = activeRef.current;
+		if (!container) return;
+
+		const buttons = Array.from(container.querySelectorAll('.table-builder-library-menu-item'));
+		const activeIndex = buttons.findIndex(el => el.classList.contains('is-active'));
+		
+		if (activeIndex === -1) return;
+
+		const width = buttons[activeIndex].clientWidth + 2;
+		const translateBefore = buttons
+			.slice(0, activeIndex)
+			.reduce((acc, el) => acc + el.clientWidth + 20, 0);
+
+		container.style.setProperty('--width', `${width}px`);
+		container.style.setProperty('--translate', `${translateBefore}px`);
+	}, [templateType]);
+
 	const doSearch = useDebounce((term) => {
-		// Always update search input, even for empty values
 		dispatch({
 			type: 'SET_SEARCH_INPUT',
 			searchInput: term || ''
 		});
-	}, 250); // Faster response for better UX
+	}, 250);
 
-	const handleChange = (value) => {
-		// Sanitize the value
-		const cleanValue = value ? value.trim() : '';
+	const handleSearchChange = useCallback((value) => {
+		const cleanValue = value?.trim() || '';
 		
-		// When user starts searching, clear category selection to show it's global search
-		if (cleanValue && cleanValue.length > 0 && filter.category && filter.category !== 'all') {
+		if (cleanValue && filter.category && filter.category !== 'all') {
 			dispatch({
 				type: 'SET_FILTER',
-				filter: {
-					...filter,
-					category: 'all'
-				}
+				filter: { ...filter, category: 'all' }
 			});
 		}
 		
 		doSearch(cleanValue);
-	};
+	}, [doSearch, dispatch, filter]);
 
-	const handleClose = () => {
-		// Clear both search states to keep them synchronized
-		dispatch({
-			type: 'SET_SEARCH_INPUT',
-			searchInput: ''
-		});
+	const handleSearchClose = useCallback(() => {
+		dispatch({ type: 'SET_SEARCH_INPUT', searchInput: '' });
+		dispatch({ type: 'SET_KEY_WORDS', keyWords: '' });
+		dispatch({ type: 'SET_PATTERNS', patterns: [] });
+		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
 
-		dispatch({
-			type: 'SET_KEY_WORDS',
-			keyWords: ''
-		});
-
-		// Always clear patterns when closing search to trigger fresh data load
-		dispatch({
-			type: 'SET_PATTERNS',
-			patterns: [],
-		});
-
-		// Reset pagination
-		dispatch({
-			type: "SET_PATTERNS_PAGE",
-			patternsPage: 1
-		});
-
-		// Reset category to 'All' when clearing search if it's not already 'all'
-		if (filter.category && filter.category !== 'all' && templateType === 'patterns') {
+		if (filter.category !== 'all' && templateType === 'patterns') {
 			dispatch({
 				type: 'SET_FILTER',
-				filter: {
-					...filter,
-					category: 'all'
-				}
+				filter: { ...filter, category: 'all' }
 			});
 		}
-	}
+	}, [dispatch, filter, templateType]);
 
-	const { sortedBy } = filter || {};
-	const handleSelectChange = (val) => {
-		// Clear existing patterns to trigger fresh data load with new sort
-		dispatch({
-			type: 'SET_PATTERNS',
-			patterns: []
-		});
-		
-		// Reset pagination when changing sort
-		dispatch({
-			type: 'SET_PATTERNS_PAGE',
-			patternsPage: 1
-		});
-		
-		// Update sort filter
+	const handleSortChange = useCallback((val) => {
+		dispatch({ type: 'SET_PATTERNS', patterns: [] });
+		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
 		dispatch({
 			type: 'SET_FILTER',
-			filter: {
-				...filter,
-				sortedBy: val
-			}
+			filter: { ...filter, sortedBy: val }
 		});
-	}
+	}, [dispatch, filter]);
 
+	const handleSyncClick = useCallback(() => {
+		dispatch({
+			type: 'SET_SYNC_LIBRARY',
+			syncLibrary: true
+		});
+	}, [dispatch]);
 
-	const displayNone = showSinglePage ? { opacity: '0', visibility: 'hidden', cursor: 'none' } : { opacity: '1', visibility: 'visible', cursor: 'pointer' }
+	const displayStyle = useMemo(() => 
+		showSinglePage 
+			? { opacity: '0', visibility: 'hidden', cursor: 'none' }
+			: { opacity: '1', visibility: 'visible', cursor: 'pointer' },
+		[showSinglePage]
+	);
+
 	return (
 		<div className="interface-interface-skeleton__header table-builder-library-header">
 			<div className="edit-post-header edit-site-header-edit-mode table-builder-library-header-content">
@@ -164,47 +127,41 @@ const LibraryHeader = () => {
 					Table Builder
 				</div>
 				<div className="table-builder-library-search">
-					<div className="table-builder-library-select" style={displayNone}>
+					<div className="table-builder-library-select" style={displayStyle}>
 						<span>Sorted by:</span>
 						<SelectField
-							options={[
-								{ value: 'recent', label: 'Recent' },
-								{ value: 'popular', label: 'Popular' },
-							]}
-							value={sortedBy}
-							onChange={handleSelectChange}
+							options={SORT_OPTIONS}
+							value={filter?.sortedBy}
+							onChange={handleSortChange}
 							placeholder="Sort By"
 							error={false}
 						/>
 					</div>
-					<div style={displayNone}>
+					<div style={displayStyle}>
 						<SearchBar
-							onChange={handleChange}
-							onClick={(event) => event.target.focus()}
-							onClose={handleClose}
+							onChange={handleSearchChange}
+							onClick={(e) => e.target.focus()}
+							onClose={handleSearchClose}
 							className="table-builder-library-search-input"
 							placeholder={`Search ${templateType}...`}
 						/>
 					</div>
 					{isEditor && (
 						<>
-							<div className="table-builder-library-icon" style={displayNone}>
+							<div className="table-builder-library-icon" style={displayStyle}>
 								<Button
-									variant='tertiary'
+									variant="tertiary"
 									icon={<Reload />}
 									className={`table-builder-library-synchronize ${syncLibrary ? 'is-active' : ''}`}
-									onClick={() => dispatch({
-										type: 'SET_SYNC_LIBRARY',
-										syncLibrary: true
-									})}
+									onClick={handleSyncClick}
 								/>
 								<SynclibraryTooltip />
 							</div>
-							<span className="table-builder-library-separate" style={displayNone}></span>
+							<span className="table-builder-library-separate" style={displayStyle} />
 							<div className="table-builder-library-icon">
 								<Button
 									onClick={handleLoadLibrary}
-									variant='tertiary'
+									variant="tertiary"
 									icon={<Close />}
 									className="table-builder-template-library__close"
 								/>
@@ -212,11 +169,9 @@ const LibraryHeader = () => {
 							</div>
 						</>
 					)}
-
 				</div>
-
 			</div>
-		</div >
+		</div>
 	);
 };
 
