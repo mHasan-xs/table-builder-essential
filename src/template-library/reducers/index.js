@@ -11,7 +11,7 @@ const initialState = {
 	templates: [],
 	favorite: [],
 	filter: {
-		category: [],
+		category: 'all',
 		sortedBy: '',
 		contentType: 'all'
 	},

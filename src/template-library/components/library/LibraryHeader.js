@@ -107,10 +107,12 @@ const LibraryHeader = () => {
 			patternsPage: 1
 		});
 
-		if (filter.category !== '' && templateType === 'patterns') {
+		// Reset category to 'All' when clearing search if it's not already 'all'
+		if (filter.category && filter.category !== 'all' && templateType === 'patterns') {
 			dispatch({
 				type: 'SET_FILTER',
 				filter: {
+					...filter,
 					category: 'all'
 				}
 			});

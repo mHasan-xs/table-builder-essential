@@ -10,7 +10,6 @@ import RadioField from '../common/RadioField';
  */
 const Filter = () => {
 	const { filter, dispatch, templateType, contentType } = useContextLibrary();
-	console.log("🚀 ~ Filter ~ templateType:", templateType)
 	const { categories, loading } = useCategoryQuery();
 	/**
 	 * Handles the category filter.
@@ -19,22 +18,36 @@ const Filter = () => {
 	 * @returns {void}
 	 */
 	const handleCategoryFilter = (newCategory) => {
+		// Clear search when changing category
 		dispatch({
 			type: 'SET_SEARCH_INPUT',
 			searchInput: ''
-		})
+		});
 		dispatch({
 			type: 'SET_KEY_WORDS',
 			keyWords: ''
-		})
+		});
+		
+		// Reset pagination when changing category
+		dispatch({
+			type: 'SET_PATTERNS_PAGE',
+			patternsPage: 1
+		});
+		
+		// Clear existing patterns to trigger fresh data load
+		dispatch({
+			type: 'SET_PATTERNS',
+			patterns: []
+		});
+		
+		// Update category filter
 		dispatch({
 			type: 'SET_FILTER',
 			filter: {
 				...filter,
-				category: newCategory,
-
+				category: newCategory
 			}
-		})
+		});
 	}
 
 
@@ -84,13 +97,16 @@ const Filter = () => {
 						<ul className="table-builder-library-filter-category-list">
 							{
 								categories.map((category, index) => {
+									const isActive = category.slug === filter?.category;
 									return (
-										<li key={index} className="table-builder-library-filter-category-list-item">
+										<li key={category.id || index} className="table-builder-library-filter-category-list-item">
 											<button
-												className={`table-builder-library-filter-category-list-title ${category.slug === filter?.category ? 'is-active' : ''}`}
+												className={`table-builder-library-filter-category-list-title ${isActive ? 'is-active' : ''}`}
 												onClick={() => handleCategoryFilter(category.slug)}
+												aria-pressed={isActive}
+												title={`Filter by ${category.title} (${category.count} items)`}
 											>
-												<span>{category.title}</span>
+												<span className="category-title">{category.title}</span>
 												<span className='list-title-count'>{category.count}</span>
 											</button>
 										</li>
