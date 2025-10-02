@@ -509,8 +509,8 @@ class Table_Builder_Essential_REST_API
             ];
         }
 
-        // Handle type filter (free/pro) - BUT NOT when we have a search term (search takes priority)
-        if (!empty($type) && $type !== 'all' && empty($search)) {
+        // Handle type filter (free/pro) - works with both search and non-search queries
+        if (!empty($type) && $type !== 'all') {
             if ($type === 'free') {
                 $args['meta_query'][] = [
                     'relation' => 'OR',

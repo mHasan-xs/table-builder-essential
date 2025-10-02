@@ -55,16 +55,7 @@ const Filter = () => {
 
 
 	const handleContentTypeFilter = (newContentType) => {
-		// Reset search and keywords when changing content type
-		dispatch({
-			type: 'SET_SEARCH_INPUT',
-			searchInput: ''
-		});
-		dispatch({
-			type: 'SET_KEY_WORDS',
-			keyWords: ''
-		});
-		// Reset patterns page
+		// Reset patterns page when changing content type
 		dispatch({
 			type: 'SET_PATTERNS_PAGE',
 			patternsPage: 1
@@ -74,7 +65,7 @@ const Filter = () => {
 			type: 'SET_PATTERNS',
 			patterns: []
 		});
-		// Update filter
+		// Update filter - keep search intact to allow type filtering on search results
 		dispatch({
 			type: 'SET_FILTER',
 			filter: {
