@@ -37,13 +37,7 @@ const Filter = () => {
 			patternsPage: 1
 		});
 		
-		// Clear existing patterns to trigger fresh data load
-		dispatch({
-			type: 'SET_PATTERNS',
-			patterns: []
-		});
-		
-		// Update category filter
+		// Update category filter - let usePatternQuery handle clearing patterns
 		dispatch({
 			type: 'SET_FILTER',
 			filter: {
@@ -60,12 +54,7 @@ const Filter = () => {
 			type: 'SET_PATTERNS_PAGE',
 			patternsPage: 1
 		});
-		// Clear existing patterns to force refetch
-		dispatch({
-			type: 'SET_PATTERNS',
-			patterns: []
-		});
-		// Update filter - keep search intact to allow type filtering on search results
+		// Update filter - let usePatternQuery handle clearing patterns
 		dispatch({
 			type: 'SET_FILTER',
 			filter: {

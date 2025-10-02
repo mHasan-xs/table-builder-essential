@@ -80,6 +80,7 @@ const Patterns = () => {
 	);
 
 	const renderPatterns = () => {
+		// Show skeleton loader during initial load or filter transitions
 		if (showLoader) {
 			return <ContentLoader type="patterns" />;
 		}

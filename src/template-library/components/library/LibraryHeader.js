@@ -86,7 +86,6 @@ const LibraryHeader = () => {
 	const handleSearchClose = useCallback(() => {
 		dispatch({ type: 'SET_SEARCH_INPUT', searchInput: '' });
 		dispatch({ type: 'SET_KEY_WORDS', keyWords: '' });
-		dispatch({ type: 'SET_PATTERNS', patterns: [] });
 		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
 
 		if (filter.category !== 'all' && templateType === 'patterns') {
@@ -98,7 +97,6 @@ const LibraryHeader = () => {
 	}, [dispatch, filter, templateType]);
 
 	const handleSortChange = useCallback((val) => {
-		dispatch({ type: 'SET_PATTERNS', patterns: [] });
 		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
 		dispatch({
 			type: 'SET_FILTER',

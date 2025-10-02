@@ -13,6 +13,32 @@ const usePatternQuery = () => {
 	const [hasMore, setHasMore] = useState(true);
 	const loadMoreRef = useRef(null);
 	const activeRequestRef = useRef(null); // For request deduplication
+	const previousFiltersRef = useRef({
+		category: filter.category,
+		contentType: filter.contentType,
+		sortedBy: filter.sortedBy,
+		search: searchInput
+	});
+
+	// Check if filters changed to trigger immediate loading state
+	useEffect(() => {
+		const currentFilters = {
+			category: filter.category,
+			contentType: filter.contentType,
+			sortedBy: filter.sortedBy,
+			search: searchInput
+		};
+
+		// Check if any filter has changed
+		const filtersChanged = Object.keys(currentFilters).some(
+			key => currentFilters[key] !== previousFiltersRef.current[key]
+		);
+
+		if (filtersChanged) {
+			setLoading(true);
+			previousFiltersRef.current = currentFilters;
+		}
+	}, [filter.category, filter.contentType, filter.sortedBy, searchInput]);
 
 	// Fetch patterns
 	useEffect(() => {
@@ -26,6 +52,15 @@ const usePatternQuery = () => {
 				// Create new AbortController for this request
 				const controller = new AbortController();
 				activeRequestRef.current = controller;
+				
+				// Determine if this is a fresh load (page 1) or pagination (page > 1)
+				const isFirstPage = patternsPage === 1;
+				const shouldClearPatterns = syncLibrary || isFirstPage;
+				
+				// Ensure loading state is set (should already be set by filter change effect)
+				setLoading(true);
+				
+
 				
 				// Handle sync library - always clear and reset
 				if (syncLibrary) {
@@ -41,16 +76,13 @@ const usePatternQuery = () => {
 				}
 				
 				// Clear patterns when starting a new search/filter (page 1)
-				if (patternsPage === 1 && !syncLibrary) {
+				else if (isFirstPage) {
 					dispatch({
 						type: 'SET_PATTERNS',
 						patterns: []
 					});
 					setHasMore(true);
 				}
-				
-				// Show loading for initial load and infinite scroll
-				setLoading(true);
 				
 				// Optimize API parameters for search performance
 				let queryParams = {
