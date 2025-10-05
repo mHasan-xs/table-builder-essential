@@ -15,65 +15,38 @@
  * @package           create-block
  */
 
-if (! defined('ABSPATH')) {
-	exit; // Exit if accessed directly.
-}
+if (!defined('ABSPATH')) exit;
 
 define('TABLE_BUILDER_ESSENTIAL_VERSION', '1.0.0');
 define('TABLE_BUILDER_ESSENTIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TABLE_BUILDER_ESSENTIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TABLE_BUILDER_ESSENTIAL_PLUGIN_FILE', __FILE__);
 
-// Load autoloader
 require_once plugin_dir_path(__FILE__) . 'includes/Autoloader.php';
 TableBuilderEssential\Autoloader::register();
 
-// Security initialization
 add_action('init', 'table_builder_essential_security_init');
 function table_builder_essential_security_init()
 {
-	// Add security headers
 	if (!is_admin()) {
 		add_action('wp_head', 'table_builder_essential_security_headers', 1);
 	}
-
-	// Remove version info to prevent information disclosure
 	remove_action('wp_head', 'wp_generator');
-
-	// Disable XML-RPC if not needed
 	add_filter('xmlrpc_enabled', '__return_false');
 }
 
-/**
- * Add security headers for the plugin.
- */
 function table_builder_essential_security_headers()
 {
-	// Content Security Policy
 	header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;");
-
-	// Prevent clickjacking
 	header('X-Frame-Options: SAMEORIGIN');
-
-	// Prevent MIME type sniffing
 	header('X-Content-Type-Options: nosniff');
-
-	// Enable XSS protection
 	header('X-XSS-Protection: 1; mode=block');
-
-	// Referrer policy
 	header('Referrer-Policy: strict-origin-when-cross-origin');
 }
 
-/**
- * Initialize the plugin
- */
 function table_builder_essential_init()
 {
-	// Initialize enqueue system
 	TableBuilderEssential\Core\Enqueue::instance();
-
-	// Register block type (if needed)
 	if (file_exists(__DIR__ . '/build/template-library/block.json')) {
 		register_block_type(__DIR__ . '/build/template-library');
 	}
@@ -81,22 +54,12 @@ function table_builder_essential_init()
 
 add_action('plugins_loaded', 'table_builder_essential_init');
 
-/**
- * Registers the block using the metadata loaded from the `block.json` file.
- * Behind the scenes, it registers also all assets so they can be enqueued
- * through the block editor in the corresponding context.
- *
- * @see https://developer.wordpress.org/reference/functions/register_block_type/
- */
 function create_block_table_builder_essential_init()
 {
-	// This function is kept for backward compatibility
-	// The actual initialization is now handled in table_builder_essential_init()
+	// Backward compatibility
 }
 
 add_action('init', 'create_block_table_builder_essential_init');
-
-// We are in admin mode
 require_once plugin_dir_path(__FILE__) . 'includes/cpt.php';
 require_once plugin_dir_path(__FILE__) . 'includes/meta-boxes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/rest-api.php';
@@ -149,20 +112,13 @@ function add_template_content_to_api_response($data, $post, $request)
 // Hook into the REST API response to modify it
 add_filter('rest_prepare_template', 'add_template_content_to_api_response', 10, 3);
 
-/**
- * Coming Soon Page
- * @TODO: Will be removed in the future
- */
 define('ROXNOR_ESSENTIAL_MAINTENANCE', false);
 
 function table_builder_essential_template_redirect($template)
 {
-	// if $_REQUEST['previewer'] set cookie
 	if (isset($_REQUEST['previewer'])) {
 		setcookie('previewer', $_REQUEST['previewer'], time() + (30 * 24 * 60 * 60), COOKIEPATH, COOKIE_DOMAIN);
 	}
-
-	// if under maintenance and user is not allowed
 	if (
 		ROXNOR_ESSENTIAL_MAINTENANCE &&
 		!is_user_logged_in() &&
@@ -182,10 +138,6 @@ function table_builder_essential_template_redirect($template)
 add_action('template_redirect', 'table_builder_essential_template_redirect');
 
 
-/**
- *  Load global  table-builder-essential.js in frontend
- * @since 1.0.2
- */
 function table_builder_essential_enqueue_scripts()
 {
 	wp_enqueue_script(
@@ -209,17 +161,13 @@ function table_builder_essential_enqueue_scripts()
 
 add_action('wp_enqueue_scripts', 'table_builder_essential_enqueue_scripts');
 
-/**
- * Add Reusable Blocks submenu under Appearance
- * @since 1.0.3
- */
 add_action('admin_menu', function () {
 	add_submenu_page(
-		'themes.php', // Parent slug: Appearance
-		'Reusable Blocks', // Page title
-		'Reusable Blocks', // Menu title
-		'edit_posts', // Capability
-		'edit.php?post_type=wp_block' // Target page (link)
+		'themes.php',
+		'Reusable Blocks',
+		'Reusable Blocks',
+		'edit_posts',
+		'edit.php?post_type=wp_block'
 	);
 });
 
@@ -272,12 +220,8 @@ add_filter('the_author', function ($display_name) {
 	return $display_name;
 });
 
-/**
- * Plugin activation hook
- */
 function table_builder_essential_activate()
 {
-	// Ensure CPT functions are available
 	if (function_exists('table_builder_essential_register_template_post_type')) {
 		table_builder_essential_register_template_post_type();
 	}
@@ -292,9 +236,6 @@ function table_builder_essential_activate()
 
 register_activation_hook(__FILE__, 'table_builder_essential_activate');
 
-/**
- * Plugin deactivation hook
- */
 function table_builder_essential_deactivate()
 {
 	flush_rewrite_rules();

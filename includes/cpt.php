@@ -7,14 +7,8 @@
  * for the Table Builder Essential plugin.
  */
 
-// Prevent direct access
-if (!defined('ABSPATH')) {
-    exit;
-}
+if (!defined('ABSPATH')) exit;
 
-/**
- * Register the 'template' post type
- */
 function table_builder_essential_register_template_post_type()
 {
     $labels = array(
@@ -74,9 +68,6 @@ function table_builder_essential_register_template_post_type()
 
 add_action('init', 'table_builder_essential_register_template_post_type');
 
-/**
- * Register the 'table-layout-manager' post type
- */
 function table_builder_essential_register_layout_manager_post_type()
 {
     $labels = array(
