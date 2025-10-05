@@ -41,6 +41,13 @@ class Table_Builder_Essential_Meta_Box
         add_filter('manage_edit-table_layout_group_categories_columns', [$this, 'display_group_categories_columns']);
         add_filter('manage_table_layout_group_categories_custom_column', [$this, 'display_group_categories_column'], 10, 3);
 
+        // Add meta boxes for table-layout-manager post type
+        add_action('add_meta_boxes', [$this, 'add_post_meta_boxes']);
+        add_action('save_post', [$this, 'save_post_meta']);
+
+        // Add bulk actions for package type
+        add_filter('bulk_actions-edit-table-layout-manager', [$this, 'add_bulk_actions']);
+
         // Enqueue scripts and styles
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
     }
@@ -200,7 +207,7 @@ class Table_Builder_Essential_Meta_Box
                 <p class="description">Select the plugins required for this group.</p>
             </td>
         </tr>
-<?php
+    <?php
     }
 
     /**
@@ -391,6 +398,7 @@ class Table_Builder_Essential_Meta_Box
      */
     public function set_custom_post_columns($columns)
     {
+        $columns['package_type'] = __('Package', 'table-builder-essential');
         $columns['download_count'] = __('Download Count', 'table-builder-essential');
         return $columns;
     }
@@ -404,17 +412,131 @@ class Table_Builder_Essential_Meta_Box
      */
     public function get_custom_post_column($column, $post_id)
     {
-        if ($column === 'download_count') {
+        if ($column === 'package_type') {
+            $package = get_post_meta($post_id, '_package_type', true) ?: 'free';
+            $badge_class = $package === 'pro' ? 'pro-badge' : 'free-badge';
+            echo '<span class="package-badge ' . $badge_class . '">' . ucfirst($package) . '</span>';
+        } elseif ($column === 'download_count') {
             $count = get_post_meta($post_id, 'download_count', true);
             echo intval($count ?: 0);
         }
     }
 
     /**
-     * Enqueue scripts and styles.
+     * Add meta boxes for table-layout-manager post type.
      *
      * @since 1.0.0
-     * @param string $hook Current admin page hook.
+     */
+    public function add_post_meta_boxes()
+    {
+        add_meta_box(
+            'table_layout_package_settings',
+            __('Package Settings', 'table-builder-essential'),
+            [$this, 'render_package_meta_box'],
+            'table-layout-manager',
+            'side',
+            'high'
+        );
+    }
+
+    /**
+     * Render package meta box content.
+     *
+     * @since 1.0.0
+     * @param WP_Post $post Current post object.
+     */
+    public function render_package_meta_box($post)
+    {
+        // Add nonce for security
+        wp_nonce_field('table_builder_package_meta_nonce', 'table_builder_package_meta_nonce');
+
+        $package_type = get_post_meta($post->ID, '_package_type', true) ?: 'free';
+        $required_plugins = get_post_meta($post->ID, '_required_plugins', true) ?: [];
+
+    ?>
+        <div class="table-builder-meta-box">
+            <p class="form-field" style="display: flex; align-items: center; gap: 10px;">
+                <label for="package_type"><strong><?php _e('Package Type:', 'table-builder-essential'); ?></strong></label>
+                <select name="package_type" id="package_type" class="postform">
+                    <option value="free" <?php selected($package_type, 'free'); ?>><?php _e('Free', 'table-builder-essential'); ?></option>
+                    <option value="pro" <?php selected($package_type, 'pro'); ?>><?php _e('Pro', 'table-builder-essential'); ?></option>
+                </select>
+            </p>
+
+            <p class="form-field">
+                <label style="display: block; margin-bottom: 8px;"><strong><?php _e('Required Plugins:', 'table-builder-essential'); ?></strong></label>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <?php $this->render_plugin_checkboxes($required_plugins, true); ?>
+            </div>
+            <small class="description" style="display: block; margin-top: 8px;"><?php _e('Select plugins required for this pattern.', 'table-builder-essential'); ?></small>
+            </p>
+        </div>
+    <?php
+    }
+
+    /**
+     * Save post meta data.
+     *
+     * @since 1.0.0
+     * @param int $post_id Post ID.
+     */
+    public function save_post_meta($post_id)
+    {
+        // Verify nonce
+        if (
+            !isset($_POST['table_builder_package_meta_nonce']) ||
+            !wp_verify_nonce($_POST['table_builder_package_meta_nonce'], 'table_builder_package_meta_nonce')
+        ) {
+            return;
+        }
+
+        // Check if this is an autosave
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        // Check post type
+        if (get_post_type($post_id) !== 'table-layout-manager') {
+            return;
+        }
+
+        // Check user permissions
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+
+        // Save package type
+        if (isset($_POST['package_type'])) {
+            update_post_meta($post_id, '_package_type', sanitize_text_field($_POST['package_type']));
+        }
+
+        // Save required plugins
+        if (isset($_POST['required_plugins']) && is_array($_POST['required_plugins'])) {
+            $plugins = array_map('sanitize_text_field', $_POST['required_plugins']);
+            update_post_meta($post_id, '_required_plugins', $plugins);
+        } else {
+            delete_post_meta($post_id, '_required_plugins');
+        }
+    }
+
+    /**
+     * Add custom bulk actions.
+     *
+     * @since 1.0.0
+     * @param array $actions Existing bulk actions.
+     * @return array Modified bulk actions.
+     */
+    public function add_bulk_actions($actions)
+    {
+        $actions['set_free'] = __('Set as Free', 'table-builder-essential');
+        $actions['set_pro'] = __('Set as Pro', 'table-builder-essential');
+        return $actions;
+    }
+
+
+
+    /**
+     * Enqueue scripts and styles.
      */
     public function enqueue_scripts($hook)
     {
@@ -430,7 +552,7 @@ class Table_Builder_Essential_Meta_Box
             );
         }
     }
-}
+    }
 
 if (class_exists('Table_Builder_Essential_Meta_Box') && is_admin()) {
     new Table_Builder_Essential_Meta_Box();
