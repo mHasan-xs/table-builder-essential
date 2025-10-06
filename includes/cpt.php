@@ -179,4 +179,4 @@ function table_builder_essential_flush_rewrite_rules()
     flush_rewrite_rules();
 }
 
-register_activation_hook(TABLE_BUILDER_ESSENTIAL_PLUGIN_FILE, 'table_builder_essential_flush_rewrite_rules');
+register_activation_hook(TABLE_BUILDER_ESSENTIAL_FILE, 'table_builder_essential_flush_rewrite_rules');

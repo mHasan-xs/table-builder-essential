@@ -31,7 +31,7 @@ class Table_Builder_Essential_Assets_Manager
         wp_enqueue_media();
         wp_enqueue_script(
             'table-builder-meta-box',
-            TABLE_BUILDER_ESSENTIAL_PLUGIN_URL . 'assets/js/meta-box.js',
+            TABLE_BUILDER_ESSENTIAL_URL . 'assets/js/meta-box.js',
             ['jquery'],
             TABLE_BUILDER_ESSENTIAL_VERSION,
             true
