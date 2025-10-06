@@ -46,7 +46,7 @@ function table_builder_essential_security_headers()
 
 function table_builder_essential_init()
 {
-	TableBuilderEssential\corex\Enqueue::instance();
+	TableBuilderEssential\core\Enqueue::instance();
 	if (file_exists(__DIR__ . '/build/template-library/block.json')) {
 		register_block_type(__DIR__ . '/build/template-library');
 	}

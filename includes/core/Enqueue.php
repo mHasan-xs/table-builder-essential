@@ -1,6 +1,6 @@
 <?php
 
-namespace TableBuilderEssential\corex;
+namespace TableBuilderEssential\core;
 
 defined('ABSPATH') || exit;
 
