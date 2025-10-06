@@ -2,10 +2,7 @@ import { useEffect, useState } from '@wordpress/element';
 import useContextLibrary from './useContextLibrary';
 import apiFetch from '@wordpress/api-fetch';
 
-/**
- * Custom hook for fetching categories from the layout manager API.
- * This hook is specifically designed for the template library in the Gutenkit plugin.
- */
+
 const useCategoryQuery = () => {
 	const [loading, setLoading] = useState(false);
 	const { dispatch, categories, templateType, payload } = useContextLibrary();

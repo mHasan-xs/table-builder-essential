@@ -17,21 +17,13 @@ if (!defined('ABSPATH')) {
 class Table_Builder_Essential_REST_API
 {
 
-    /**
-     * Constructor.
-     *
-     * @since 1.0.0
-     */
+    // Constructor.
     public function __construct()
     {
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
-    /**
-     * Register REST API routes.
-     *
-     * @since 1.0.0
-     */
+    // Register REST API routes.
     public function register_routes()
     {
         // Templates endpoint - matches GutenKit API structure
@@ -83,22 +75,6 @@ class Table_Builder_Essential_REST_API
             'permission_callback' => [$this, 'check_read_permission'],
         ]);
 
-
-
-        // Single template endpoint
-        register_rest_route('table-builder/v1', '/layout-manager-api/template/(?P<id>\d+)', [
-            'methods' => 'GET',
-            'callback' => [$this, 'get_single_template'],
-            'permission_callback' => [$this, 'check_read_permission'],
-            'args' => [
-                'id' => [
-                    'validate_callback' => function ($param, $request, $key) {
-                        return is_numeric($param);
-                    }
-                ],
-            ],
-        ]);
-
         // Update download count endpoint
         register_rest_route('table-builder/v1', '/layout-manager-api/download-count/(?P<id>\d+)', [
             'methods' => 'POST',
@@ -112,22 +88,9 @@ class Table_Builder_Essential_REST_API
                 ],
             ],
         ]);
-
-        // Testing endpoint - Get API status and stats
-        register_rest_route('table-builder/v1', '/layout-manager-api/status', [
-            'methods' => 'GET',
-            'callback' => [$this, 'get_api_status'],
-            'permission_callback' => [$this, 'check_read_permission'],
-        ]);
     }
 
-    /**
-     * Check read permission for API endpoints.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return bool True if user can read, false otherwise.
-     */
+    // Check read permission for API endpoints.
     public function check_read_permission($request)
     {
         // Allow read access for all users (public data)
@@ -135,13 +98,7 @@ class Table_Builder_Essential_REST_API
         return true;
     }
 
-    /**
-     * Check write permission for API endpoints.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return bool True if user can write, false otherwise.
-     */
+    // Check write permission for API endpoints.
     public function check_write_permission($request)
     {
         // For write operations, require user to be logged in
@@ -157,14 +114,8 @@ class Table_Builder_Essential_REST_API
         return true;
     }
 
-    /**
-     * Check permission for download count endpoint.
-     * Allows public access with basic rate limiting.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return bool True if allowed, false otherwise.
-     */
+    // Check permission for download count endpoint.
+    // Allows public access with basic rate limiting.
     public function check_download_permission($request)
     {
         // Allow public access but with rate limiting
@@ -175,18 +126,12 @@ class Table_Builder_Essential_REST_API
         return true;
     }
 
-    /**
-     * Rate limiting specifically for download count updates.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return bool True if within rate limit, false otherwise.
-     */
+    // Rate limiting specifically for download count updates.
     private function check_download_rate_limit($request)
     {
         $ip_address = $this->get_client_ip();
         $pattern_id = $request->get_param('id');
-        
+
         // Create a unique key for this IP and pattern combination
         $key = 'table_builder_download_' . md5($ip_address . '_' . $pattern_id);
         $requests = get_transient($key);
@@ -206,13 +151,7 @@ class Table_Builder_Essential_REST_API
         return true;
     }
 
-    /**
-     * Simple rate limiting for write operations.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return bool True if within rate limit, false otherwise.
-     */
+    // Simple rate limiting for write operations.
     private function check_rate_limit($request)
     {
         $user_id = get_current_user_id();
@@ -234,12 +173,7 @@ class Table_Builder_Essential_REST_API
         return true;
     }
 
-    /**
-     * Get client IP address.
-     *
-     * @since 1.0.0
-     * @return string Client IP address.
-     */
+    // Get client IP address.
     private function get_client_ip()
     {
         $ip_keys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'];
@@ -260,15 +194,7 @@ class Table_Builder_Essential_REST_API
         return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
     }
 
-    /**
-     * Validate search parameter.
-     *
-     * @since 1.0.0
-     * @param mixed $param The parameter value.
-     * @param WP_REST_Request $request Full data about the request.
-     * @param string $key The parameter key.
-     * @return bool True if valid, false otherwise.
-     */
+    // Validate search parameter.
     public function validate_search_param($param, $request, $key)
     {
         if (empty($param) || $param === '') {
@@ -288,15 +214,8 @@ class Table_Builder_Essential_REST_API
 
         return true;
     }
-    /**
-     * Validate category parameter.
-     *
-     * @since 1.0.0
-     * @param mixed $param The parameter value.
-     * @param WP_REST_Request $request Full data about the request.
-     * @param string $key The parameter key.
-     * @return bool True if valid, false otherwise.
-     */
+    
+    // Validate category parameter.
     public function validate_category_param($param, $request, $key)
     {
         if (empty($param) || $param === '' || $param === 'all') {
@@ -310,15 +229,8 @@ class Table_Builder_Essential_REST_API
 
         return true;
     }
-    /**
-     * Validate type parameter.
-     *
-     * @since 1.0.0
-     * @param mixed $param The parameter value.
-     * @param WP_REST_Request $request Full data about the request.
-     * @param string $key The parameter key.
-     * @return bool True if valid, false otherwise.
-     */
+    
+    // Validate type parameter.
     public function validate_type_param($param, $request, $key)
     {
         if (empty($param) || $param === '') {
@@ -330,15 +242,7 @@ class Table_Builder_Essential_REST_API
         return in_array($param, $allowed_types, true);
     }
 
-    /**
-     * Validate sort parameter.
-     *
-     * @since 1.0.0
-     * @param mixed $param The parameter value.
-     * @param WP_REST_Request $request Full data about the request.
-     * @param string $key The parameter key.
-     * @return bool True if valid, false otherwise.
-     */
+    // Validate sort parameter.
     public function validate_sort_param($param, $request, $key)
     {
         if (empty($param) || $param === '') {
@@ -350,28 +254,14 @@ class Table_Builder_Essential_REST_API
         return in_array($param, $allowed_sorts, true);
     }
 
-    /**
-     * Validate ID parameter.
-     *
-     * @since 1.0.0
-     * @param mixed $param The parameter value.
-     * @param WP_REST_Request $request Full data about the request.
-     * @param string $key The parameter key.
-     * @return bool True if valid, false otherwise.
-     */
+    // Validate ID parameter.
     public function validate_id_param($param, $request, $key)
     {
         // Allow 0 (default) or positive integers
         return is_numeric($param) && $param >= 0;
     }
 
-    /**
-     * Sanitize and escape output data.
-     *
-     * @since 1.0.0
-     * @param mixed $data The data to sanitize.
-     * @return mixed Sanitized data.
-     */
+    // Sanitize and escape output data.
     private function sanitize_output($data)
     {
         if (is_array($data)) {
@@ -386,13 +276,7 @@ class Table_Builder_Essential_REST_API
         return $data;
     }
 
-    /**
-     * Get templates/patterns.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response
-     */
+    // Get templates/patterns.
     public function get_templates($request)
     {
         // Sanitize and validate all input parameters
@@ -433,12 +317,12 @@ class Table_Builder_Essential_REST_API
         if (!empty($search) && strlen(trim($search)) > 0) {
             global $wpdb;
             $clean_search = trim($search);
-            
+
             // For search with sorting, we need to cache the IDs but apply sort in WP_Query
             // Only cache the search IDs (without sort-specific ordering)
             $search_cache_key = 'tb_search_ids_' . md5($clean_search);
             $cached_search_ids = wp_cache_get($search_cache_key, 'table_builder_search');
-            
+
             if ($cached_search_ids !== false) {
                 // Use cached search IDs
                 $title_matches = $cached_search_ids;
@@ -448,7 +332,7 @@ class Table_Builder_Essential_REST_API
                 $search_conditions = [];
                 $order_cases = [];
                 $bind_params = [];
-                
+
                 // Create search conditions for each word
                 foreach ($search_words as $index => $word) {
                     if (strlen(trim($word)) > 0) {
@@ -458,12 +342,12 @@ class Table_Builder_Essential_REST_API
                         $bind_params[] = $word_param;
                     }
                 }
-                
+
                 if (!empty($search_conditions)) {
                     // Advanced relevance scoring
                     $full_search_term = '%' . $wpdb->esc_like($clean_search) . '%';
                     $starts_with_term = $wpdb->esc_like($clean_search) . '%';
-                    
+
                     $sql = "
                         SELECT ID, post_title,
                             (CASE 
@@ -488,7 +372,7 @@ class Table_Builder_Essential_REST_API
                             post_title ASC
                         LIMIT 50
                     ";
-                    
+
                     // Prepare parameters in correct order
                     $all_params = [
                         $clean_search,           // Exact match
@@ -500,36 +384,33 @@ class Table_Builder_Essential_REST_API
                         $full_search_term,       // WHERE contains phrase
                         ...$bind_params          // WHERE all words conditions
                     ];
-                    
+
                     $results = $wpdb->get_results($wpdb->prepare($sql, ...$all_params));
                     $title_matches = array_column($results, 'ID');
-                    
+
                     // Cache search IDs for 5 minutes (no sort dependency for base search)
                     wp_cache_set($search_cache_key, $title_matches, 'table_builder_search', 300);
                 } else {
                     $title_matches = [];
                 }
             }
-            
+
             if (!empty($title_matches)) {
                 // Use our optimized search results
                 $args['post__in'] = $title_matches;
-                
+
                 // Apply sort order to search results
                 if ($sort === 'popular') {
-                    // Popular sort: by download count, but only from search results
                     $args['meta_key'] = '_download_count';
                     $args['orderby'] = 'meta_value_num';
                     $args['order'] = 'DESC';
                 } elseif ($sort === 'recent') {
-                    // Recent sort: by date, but only from search results
                     $args['orderby'] = 'date';
                     $args['order'] = 'DESC';
                 } else {
-                    // Default: maintain relevance order for search
                     $args['orderby'] = 'post__in';
                 }
-                
+
                 // Remove conflicting parameters
                 unset($args['s'], $args['search']);
             } else {
@@ -537,9 +418,9 @@ class Table_Builder_Essential_REST_API
                 $args['post__in'] = [0];
                 unset($args['s'], $args['search']);
             }
-            
+
             // Optimize query performance
-            $args['no_found_rows'] = true; // Skip counting for faster queries
+            $args['no_found_rows'] = true; 
             $args['suppress_filters'] = false;
         }
 
@@ -587,15 +468,15 @@ class Table_Builder_Essential_REST_API
             add_filter('posts_search', '__return_empty_string', 999);
             add_filter('posts_search_orderby', '__return_empty_string', 999);
         }
-        
+
         $query = new WP_Query($args);
-        
+
         // Remove filters after query
         if (!empty($search)) {
             remove_filter('posts_search', '__return_empty_string', 999);
             remove_filter('posts_search_orderby', '__return_empty_string', 999);
         }
-        
+
         $posts = [];
 
         if ($query->have_posts()) {
@@ -611,6 +492,7 @@ class Table_Builder_Essential_REST_API
                 $package_type = get_post_meta($post_id, '_package_type', true) ?: 'free';
                 $thumbnail = get_the_post_thumbnail_url($post_id, 'medium') ?: '';
                 $required_plugins = get_post_meta($post_id, '_required_plugins', true) ?: [];
+                $live_preview_url = get_post_meta($post_id, '_live_preview_url', true) ?: '';
                 $download_count = get_post_meta($post_id, '_download_count', true) ?: 0;
 
                 // Get pattern categories
@@ -647,6 +529,7 @@ class Table_Builder_Essential_REST_API
                     'type' => sanitize_text_field($package_type),
                     'package' => sanitize_text_field($package_type),
                     'required_plugins' => array_map('sanitize_text_field', (array) $required_plugins),
+                    'live_preview_url' => esc_url_raw($live_preview_url),
                     'categories' => $formatted_categories,
                     'download_count' => (int) $download_count,
                     'meta' => [
@@ -667,7 +550,7 @@ class Table_Builder_Essential_REST_API
             'search_term' => $search,
             'has_results' => !empty($posts),
         ];
-        
+
         // Add search context for debugging
         if (!empty($search) && empty($posts)) {
             $response_data['message'] = 'No patterns found matching your search criteria.';
@@ -678,17 +561,11 @@ class Table_Builder_Essential_REST_API
                 'Browse categories instead'
             ];
         }
-        
+
         return new WP_REST_Response($response_data, 200);
     }
 
-    /**
-     * Get categories.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response
-     */
+    // Get categories.
     public function get_categories($request)
     {
         $terms = get_terms([
@@ -716,7 +593,7 @@ class Table_Builder_Essential_REST_API
                 'fields' => 'ids',
                 'nopaging' => true,
             ]);
-            
+
             $categories[] = [
                 'id' => $term->term_id,
                 'title' => $term->name,
@@ -731,69 +608,7 @@ class Table_Builder_Essential_REST_API
     }
 
 
-
-    /**
-     * Get single template.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response
-     */
-    public function get_single_template($request)
-    {
-        $id = $request->get_param('id');
-
-        $post = get_post($id);
-        if (!$post || $post->post_type !== 'table-layout-manager') {
-            return new WP_Error('not_found', 'Template not found', ['status' => 404]);
-        }
-
-        // Get author information
-        $author_id = get_post_field('post_author', $id);
-        $author_name = get_the_author_meta('display_name', $author_id);
-
-        // Get meta fields
-        $package_type = get_post_meta($id, '_package_type', true) ?: 'free';
-        $thumbnail = get_the_post_thumbnail_url($id, 'large') ?: '';
-        $required_plugins = get_post_meta($id, '_required_plugins', true) ?: [];
-        $download_count = get_post_meta($id, '_download_count', true) ?: 0;
-
-        // Get pattern categories
-        $categories = wp_get_post_terms($id, 'table_pattern_categories');
-
-        $is_pro = ($package_type === 'pro');
-
-        $template = [
-            'id' => $id,
-            'title' => $post->post_title,
-            'content' => $post->post_content,
-            'excerpt' => $post->post_excerpt,
-            'slug' => $post->post_name,
-            'date' => $post->post_date,
-            'modified' => $post->post_modified,
-            'author' => [
-                'id' => $author_id,
-                'name' => $author_name,
-            ],
-            'thumbnail' => $thumbnail,
-            'is_pro' => $is_pro,
-            'type' => $package_type,
-            'package' => $package_type,
-            'required_plugins' => $required_plugins,
-            'categories' => $categories,
-            'download_count' => (int) $download_count,
-        ];
-
-        return new WP_REST_Response($template, 200);
-    }
-
-    /**
-     * Update download count.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response
-     */
+    //Update download count.
     public function update_download_count($request)
     {
         $id = $request->get_param('id');
@@ -814,13 +629,8 @@ class Table_Builder_Essential_REST_API
         ], 200);
     }
 
-    /**
-     * Get API status and statistics.
-     *
-     * @since 1.0.0
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response
-     */
+
+    //Get API status and statistics.
     public function get_api_status($request)
     {
         // Get counts
@@ -846,14 +656,10 @@ class Table_Builder_Essential_REST_API
             'endpoints' => [
                 'patterns' => '/wp-json/table-builder/v1/layout-manager-api/patterns',
                 'categories' => '/wp-json/table-builder/v1/layout-manager-api/patterns/categories',
-                'single_template' => '/wp-json/table-builder/v1/layout-manager-api/template/{id}',
                 'download_count' => '/wp-json/table-builder/v1/layout-manager-api/download-count/{id}',
-                'status' => '/wp-json/table-builder/v1/layout-manager-api/status'
             ]
         ], 200);
     }
-
-
 }
 
 // Initialize the REST API

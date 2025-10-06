@@ -37,10 +37,20 @@ class Table_Builder_Essential_Post_Meta_Boxes extends Table_Builder_Essential_Ad
 
         $package_type = get_post_meta($post->ID, '_package_type', true) ?: 'free';
         $required_plugins = get_post_meta($post->ID, '_required_plugins', true) ?: [];
+        $live_preview_url = get_post_meta($post->ID, '_live_preview_url', true) ?: '';
 
 ?>
+
         <div class="table-builder-meta-box">
-            <div class="form-field package-type-field" style="display: flex; align-items: center; gap: 20px;">
+            <div class="form-field table-live-url-field" style="margin-bottom: 15px;">
+                <label for="table_live_url">
+                    <strong><?php _e('Live Preview URL:', 'table-builder-essential'); ?></strong>
+                </label>
+                <input type="url" id="table_live_url" name="table_live_url" class="widefat" value="<?php echo esc_url($live_preview_url); ?>" placeholder="https://example.com/demo" />
+            </div>
+
+
+            <div class="form-field package-type-field" >
                 <label for="package_type">
                     <strong><?php _e('Package Type:', 'table-builder-essential'); ?></strong>
                 </label>
@@ -86,6 +96,10 @@ class Table_Builder_Essential_Post_Meta_Boxes extends Table_Builder_Essential_Ad
             update_post_meta($post_id, '_required_plugins', $plugins);
         } else {
             delete_post_meta($post_id, '_required_plugins');
+        }
+        if (isset($_POST['table_live_url'])) {
+            $live_preview_url = esc_url_raw($_POST['table_live_url']);
+            update_post_meta($post_id, '_live_preview_url', $live_preview_url);
         }
     }
 

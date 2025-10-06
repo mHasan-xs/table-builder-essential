@@ -1,8 +1,7 @@
-import { useEffect, useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { dispatch as dataDispatch, select } from '@wordpress/data';
 import { parse } from '@wordpress/blocks';
-import apiFetch from '@wordpress/api-fetch';
 import useContextLibrary from '../../hooks/useContextLibrary';
 import usePatternQuery from '@/template-library/hooks/usePatternQuery';
 import useDownloadCount from '@/template-library/hooks/useDownloadCount';
@@ -12,31 +11,15 @@ import Pattern from './Pattern';
 import Empty from '../common/Empty';
 import ContentLoader from '../common/ContentLoader';
 
-const API_SETTINGS_PATH = '/gutenkit/v1/settings';
-const BLOCK_EDITOR_STORE = 'core/block-editor';
 
 const Patterns = () => {
 	const { dispatch, imageImportType, filter } = useContextLibrary();
 	const { patterns, loading, loadMoreRef, hasMore } = usePatternQuery();
 	const updateDownloadCount = useDownloadCount();
+	const BLOCK_EDITOR_STORE = 'core/block-editor';
 
 	const { insertBlocks, insertAfterBlock, replaceBlocks } = dataDispatch(BLOCK_EDITOR_STORE);
 	const { getSelectedBlockClientId } = select(BLOCK_EDITOR_STORE);
-
-	useEffect(() => {
-		apiFetch({ path: API_SETTINGS_PATH })
-			.then((data) => {
-				const remoteImagePermission = data.settings.remote_image.status === 'active' 
-					? 'upload' 
-					: '';
-				
-				dispatch({
-					type: 'SET_IMAGE_IMPORT_TYPE',
-					imageImportType: remoteImagePermission
-				});
-			})
-			.catch(console.error);
-	}, [dispatch]);
 
 	const insertPattern = useCallback((content) => {
 		const selectedBlockClientId = getSelectedBlockClientId();
@@ -85,7 +68,6 @@ const Patterns = () => {
 	);
 
 	const renderPatterns = () => {
-		// Show skeleton loader during initial load or filter transitions
 		if (showLoader) {
 			return <ContentLoader type="patterns" />;
 		}

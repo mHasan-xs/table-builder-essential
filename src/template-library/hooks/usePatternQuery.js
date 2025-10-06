@@ -2,17 +2,14 @@ import { useEffect, useState, useRef } from '@wordpress/element';
 import useContextLibrary from './useContextLibrary';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-/**
- * Custom hook for fetching patterns from the template library.
- *
- * @returns {Object} An object containing patterns, loading state, loadMoreRef, and hasMore flag.
- */
+
+
 const usePatternQuery = () => {
 	const { templateType, dispatch, patterns, syncLibrary, searchInput, filter, patternsPage, payload } = useContextLibrary();
 	const [loading, setLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(true);
 	const loadMoreRef = useRef(null);
-	const activeRequestRef = useRef(null); // For request deduplication
+	const activeRequestRef = useRef(null); 
 	const previousFiltersRef = useRef({
 		category: filter.category,
 		contentType: filter.contentType,
@@ -44,7 +41,6 @@ const usePatternQuery = () => {
 	useEffect(() => {
 		const patternFetch = async () => {
 			try {
-				// Cancel previous request if still pending (request deduplication)
 				if (activeRequestRef.current) {
 					activeRequestRef.current.abort();
 				}
@@ -87,7 +83,7 @@ const usePatternQuery = () => {
 				// Optimize API parameters for search performance
 				let queryParams = {
 					page: patternsPage,
-					per_page: searchInput ? 20 : 16, // Load more results for search to reduce pagination
+					per_page: searchInput ? 20 : 16
 				};
 				
 				// Add search parameter
@@ -111,29 +107,18 @@ const usePatternQuery = () => {
 				}
 				
 				if (templateType === 'patterns') {
-					// Single API call with all filters combined
-					// Use local table-builder-essential API with abort signal
 					const path = addQueryArgs('table-builder/v1/layout-manager-api/patterns', queryParams);
 					const json = await apiFetch({ 
 						path: path,
 						method: 'GET',
-						signal: controller.signal // Add abort signal for request cancellation
+						signal: controller.signal 
 					});
 					let filteredPatterns = json?.posts || [];
 					
 					// Handle pagination - check if this is first page or filter change
 					const isFirstPageOrFilterChange = patternsPage === 1 || syncLibrary;
 					
-					console.log('Fetching patterns:', {
-						page: patternsPage,
-						isFirstPage: isFirstPageOrFilterChange,
-						currentPatternsCount: patterns.length,
-						newPatternsCount: filteredPatterns.length
-					});
-					
 					if (isFirstPageOrFilterChange) {
-						// First load or filter change - replace patterns
-						console.log('Replacing patterns with new data');
 						dispatch({
 							type: 'SET_PATTERNS',
 							patterns: filteredPatterns,
@@ -144,12 +129,6 @@ const usePatternQuery = () => {
 						const newPatterns = filteredPatterns.filter(pattern => 
 							!existingIds.includes(pattern.id || pattern.ID)
 						);
-						
-						console.log('Appending patterns:', {
-							existingIds: existingIds.length,
-							newPatterns: newPatterns.length,
-							totalAfterAppend: patterns.length + newPatterns.length
-						});
 						
 						dispatch({
 							type: 'SET_PATTERNS',
@@ -169,7 +148,6 @@ const usePatternQuery = () => {
 				}
 			} finally {
 				setLoading(false);
-				// Clear the active request reference
 				if (activeRequestRef.current) {
 					activeRequestRef.current = null;
 				}
@@ -180,7 +158,6 @@ const usePatternQuery = () => {
 		patternFetch();
 
 		return () => {
-			// Cancel any pending requests on cleanup
 			if (activeRequestRef.current) {
 				activeRequestRef.current.abort();
 				activeRequestRef.current = null;
@@ -197,8 +174,6 @@ const usePatternQuery = () => {
 		const onIntersection = (items) => {
 			const loaderItem = items[0];
 			if (loaderItem.isIntersecting && hasMore && !loading && patterns.length > 0) {
-				console.log('Infinite scroll triggered - loading more patterns...');
-				// Increment page to load next set of patterns
 				dispatch({
 					type: "SET_PATTERNS_PAGE",
 					patternsPage: patternsPage + 1
@@ -207,7 +182,7 @@ const usePatternQuery = () => {
 		};
 
 		const observer = new IntersectionObserver(onIntersection, {
-			rootMargin: '100px' // Start loading when within 100px of the load more button
+			rootMargin: '100px' 
 		});
 		
 		if (loadMoreRef.current) {
@@ -219,7 +194,7 @@ const usePatternQuery = () => {
 				observer.disconnect();
 			}
 		};
-	}, [hasMore, loading, patterns.length, patternsPage]); // Dependencies for infinite scroll
+	}, [hasMore, loading, patterns.length, patternsPage]); 
 
 	// Reset pagination when filters change
 	useEffect(() => {

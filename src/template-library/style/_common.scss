@@ -21,21 +21,21 @@
     &[data-package="pro"] {
       &::after {
         content: "Pro";
-    	position: absolute;
-    	top: 13px;
-    	right: 10px;
-    	z-index: 4;
-    	display: inline-flex;
-   		align-items: center;
+        position: absolute;
+        top: 13px;
+        right: 10px;
+        z-index: 4;
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
-    	padding: 4px 13px;
-    	font-size: 12px;
-    	font-weight: 600;
-    	line-height: 1;
-    	color: #fff;
-    	background: #ff4a7d;
-    	border-radius: 4px;
-    	pointer-events: none;
+        padding: 4px 13px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        color: #fff;
+        background: #ff4a7d;
+        border-radius: 4px;
+        pointer-events: none;
       }
     }
 
@@ -159,10 +159,33 @@
             fill: transparent;
           }
         }
+
+         .table-builder-import-button {
+            &:hover {
+              background: rgba(249, 250, 251, 0.98);
+              color: #1f2937;
+              transform: translateY(6px) scale(0.98);
+            }
+          }
+
+        .table-builder-preview-button {
+          &:hover {
+            background: rgba(249, 250, 251, 0.98);
+            color: #1f2937;
+            transform: translateY(6px) scale(0.98);
+          }
+
+          svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
+          }
+        }
       }
     }
   }
 }
+
 /* Pattern grid: ensure pattern cards align into a responsive grid and
    each card thumbnail keeps a consistent aspect ratio so skeletons
    and real cards occupy the same visual space. */
@@ -196,7 +219,8 @@
 
   /* force thumbnail area to keep consistent height (aspect ratio) */
   .table-builder-library-list-item-inner-content-thumbnail {
-    aspect-ratio: 16 / 11; /* card-like wide thumbnail */
+    aspect-ratio: 16 / 11;
+    /* card-like wide thumbnail */
     height: auto;
   }
 
@@ -210,6 +234,7 @@
 
 /* Small responsive tweak: make cards flow and adapt on narrow screens */
 @media (max-width: 640px) {
+
   .table-builder-page,
   .table-builder-pattern,
   .table-builder-template {
