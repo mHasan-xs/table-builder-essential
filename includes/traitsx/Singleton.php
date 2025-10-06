@@ -1,6 +1,6 @@
 <?php
 
-namespace TableBuilderEssential\Traits;
+namespace TableBuilderEssential\traitsx;
 
 defined('ABSPATH') || exit;
 
