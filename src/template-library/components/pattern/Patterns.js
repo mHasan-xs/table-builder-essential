@@ -66,7 +66,12 @@ const Patterns = () => {
 	}, [imageImportType, insertPattern, dispatch]);
 
 	const handleDownloadCount = useCallback(async (pattern) => {
-		await updateDownloadCount(pattern.ID);
+		const patternId = pattern.id || pattern.ID;
+		if (!patternId) {
+			return;
+		}
+		
+		await updateDownloadCount(patternId);
 	}, [updateDownloadCount]);
 
 	const showLoader = useMemo(() => 

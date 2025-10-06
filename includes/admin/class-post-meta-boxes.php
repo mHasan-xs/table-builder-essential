@@ -23,7 +23,7 @@ class Table_Builder_Essential_Post_Meta_Boxes extends Table_Builder_Essential_Ad
     {
         add_meta_box(
             'table_layout_package_settings',
-            __('Package Settings', 'table-builder-essential'),
+            __('Pattern Settings', 'table-builder-essential'),
             [$this, 'render_package_meta_box'],
             'table-layout-manager',
             'side',
@@ -66,37 +66,8 @@ class Table_Builder_Essential_Post_Meta_Boxes extends Table_Builder_Essential_Ad
             </div>
         </div>
 
-        <style>
-            .table-builder-meta-box {
-                padding: 0;
-            }
 
-            .table-builder-meta-box .form-field {
-                margin-bottom: 20px;
-            }
 
-            .table-builder-meta-box .form-field:last-child {
-                margin-bottom: 0;
-            }
-
-            .table-builder-meta-box label {
-                display: block;
-                margin-bottom: 8px;
-                font-weight: 600;
-            }
-
-            .table-builder-meta-box .description {
-                margin-top: 5px;
-                color: #666;
-                font-style: italic;
-                font-size: 13px;
-            }
-
-            .table-builder-meta-box .plugins-list label {
-                font-weight: normal;
-                margin-bottom: 5px;
-            }
-        </style>
 <?php
     }
 

@@ -26,10 +26,6 @@ abstract class Table_Builder_Essential_Admin_Base
         $this->config = [
             'plugin_choices' => Table_Builder_Essential_Admin_Config::get_plugin_choices(),
             'package_types' => Table_Builder_Essential_Admin_Config::get_package_types(),
-            'post_type_settings' => Table_Builder_Essential_Admin_Config::get_post_type_settings(),
-            'taxonomy_settings' => Table_Builder_Essential_Admin_Config::get_taxonomy_settings(),
-            'column_settings' => Table_Builder_Essential_Admin_Config::get_column_settings(),
-            'styling_settings' => Table_Builder_Essential_Admin_Config::get_styling_settings(),
         ];
     }
 

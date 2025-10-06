@@ -41,7 +41,13 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 		setIsImporting(true);
 		try {
 			await onPatternImport(pattern);
-			await onDownloadCount(pattern);
+			// Update download count after successful import
+			try {
+				await onDownloadCount(pattern);
+			} catch (downloadError) {
+				// Don't block import if download count fails
+				console.warn('Failed to update download count:', downloadError);
+			}
 		} finally {
 			setIsImporting(false);
 		}

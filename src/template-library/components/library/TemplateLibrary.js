@@ -50,7 +50,7 @@ function TemplateLibrary({ className }) {
 				className="table-builder-template-library-btn"
 				variant="primary"
 			>
-				{__('Table Template Library (Essential)', 'table-builder-block')}
+				{__('Table Template Library', 'table-builder-block')}
 			</Button>
 			{loadLibrary && portalContainer && createPortal(
 				<div className={libraryClasses}>

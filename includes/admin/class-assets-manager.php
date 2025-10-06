@@ -19,7 +19,6 @@ class Table_Builder_Essential_Assets_Manager
     public function enqueue_admin_assets($hook)
     {
         $this->enqueue_taxonomy_assets($hook);
-        $this->enqueue_post_assets($hook);
         $this->enqueue_admin_styles($hook);
     }
 
@@ -33,21 +32,6 @@ class Table_Builder_Essential_Assets_Manager
         wp_enqueue_script(
             'table-builder-meta-box',
             TABLE_BUILDER_ESSENTIAL_PLUGIN_URL . 'assets/js/meta-box.js',
-            ['jquery'],
-            TABLE_BUILDER_ESSENTIAL_VERSION,
-            true
-        );
-    }
-
-    private function enqueue_post_assets($hook)
-    {
-        if (!$this->is_table_layout_manager_page($hook)) {
-            return;
-        }
-
-        wp_enqueue_script(
-            'table-builder-admin-enhancements',
-            TABLE_BUILDER_ESSENTIAL_PLUGIN_URL . 'assets/js/admin-enhancements.js',
             ['jquery'],
             TABLE_BUILDER_ESSENTIAL_VERSION,
             true
@@ -100,52 +84,6 @@ class Table_Builder_Essential_Assets_Manager
                 background-color: #fef7e3;
                 color: #b7791f;
                 border: 1px solid #f4d03f;
-            }
-            
-            /* Category Tags */
-            .category-tag {
-                display: inline-block;
-                background: #f0f0f1;
-                color: #646970;
-                padding: 2px 8px;
-                margin: 0 4px 4px 0;
-                border-radius: 3px;
-                font-size: 11px;
-                font-weight: 500;
-            }
-            
-            /* Download Count */
-            .download-count {
-                font-weight: 600;
-                color: #646970;
-            }
-            
-            /* Admin Table Improvements */
-            .wp-list-table .column-package_type {
-                width: 90px;
-            }
-            .wp-list-table .column-download_count {
-                width: 80px;
-                text-align: center;
-            }
-            .wp-list-table .column-group_thumbnail {
-                width: 80px;
-                text-align: center;
-            }
-            
-            /* Not Available Indicator */
-            .na {
-                color: #a7aaad;
-                font-style: italic;
-            }
-            
-            /* Count Links */
-            .count {
-                font-weight: 600;
-                text-decoration: none;
-            }
-            .count:hover {
-                text-decoration: underline;
             }
         ';
     }

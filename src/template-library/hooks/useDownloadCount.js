@@ -8,19 +8,18 @@ import apiFetch from '@wordpress/api-fetch';
  */
 const useDownloadCount = () => {
 	const updateDownloadCount = useCallback(async (patternID) => {
+		if (!patternID) {
+			return;
+		}
+		
 		try {
-			const response = await fetch(`https://wpgutenkit.com/wp-json/gkit/v1/layout-manager-api/update-download-count/${patternID}`, {
+			const response = await apiFetch({
+				path: `/table-builder/v1/layout-manager-api/download-count/${patternID}`,
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
 			});
-			console.log("🚀 ~ useDownloadCount ~ response:", response)
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
+			return response;
 		} catch (error) {
-			console.error(error);
+			throw error;
 		}
 	}, []);
 

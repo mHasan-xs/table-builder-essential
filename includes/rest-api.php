@@ -103,7 +103,7 @@ class Table_Builder_Essential_REST_API
         register_rest_route('table-builder/v1', '/layout-manager-api/download-count/(?P<id>\d+)', [
             'methods' => 'POST',
             'callback' => [$this, 'update_download_count'],
-            'permission_callback' => [$this, 'check_write_permission'],
+            'permission_callback' => [$this, 'check_download_permission'],
             'args' => [
                 'id' => [
                     'validate_callback' => function ($param, $request, $key) {
@@ -154,6 +154,55 @@ class Table_Builder_Essential_REST_API
             return new WP_Error('too_many_requests', 'Too many requests. Please try again later.', ['status' => 429]);
         }
 
+        return true;
+    }
+
+    /**
+     * Check permission for download count endpoint.
+     * Allows public access with basic rate limiting.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request Full data about the request.
+     * @return bool True if allowed, false otherwise.
+     */
+    public function check_download_permission($request)
+    {
+        // Allow public access but with rate limiting
+        if (!$this->check_download_rate_limit($request)) {
+            return new WP_Error('too_many_requests', 'Too many download requests. Please try again later.', ['status' => 429]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Rate limiting specifically for download count updates.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request Full data about the request.
+     * @return bool True if within rate limit, false otherwise.
+     */
+    private function check_download_rate_limit($request)
+    {
+        $ip_address = $this->get_client_ip();
+        $pattern_id = $request->get_param('id');
+        
+        // Create a unique key for this IP and pattern combination
+        $key = 'table_builder_download_' . md5($ip_address . '_' . $pattern_id);
+        $requests = get_transient($key);
+
+        if ($requests === false) {
+            // First request from this IP for this pattern
+            set_transient($key, 1, 300); // 5 minute window
+            return true;
+        }
+
+        // Allow max 3 downloads per pattern per IP per 5 minutes
+        if ($requests >= 3) {
+            return false;
+        }
+
+        set_transient($key, $requests + 1, 300);
         return true;
     }
 
