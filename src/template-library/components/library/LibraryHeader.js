@@ -105,11 +105,20 @@ const LibraryHeader = () => {
 	}, [dispatch, filter]);
 
 	const handleSyncClick = useCallback(() => {
+		// Don't allow sync if already syncing
+		if (syncLibrary) return;
+		
+		// Reset patterns to force a fresh fetch
+		dispatch({ type: 'SET_PATTERNS', patterns: [] });
+		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
+		
+		// Trigger sync
 		dispatch({
 			type: 'SET_SYNC_LIBRARY',
 			syncLibrary: true
 		});
-	}, [dispatch]);
+	}, [dispatch, syncLibrary]);
+	
 
 	const displayStyle = useMemo(() => 
 		showSinglePage 
@@ -152,6 +161,8 @@ const LibraryHeader = () => {
 									icon={<Reload />}
 									className={`table-builder-library-synchronize ${syncLibrary ? 'is-active' : ''}`}
 									onClick={handleSyncClick}
+									disabled={syncLibrary}
+									title={syncLibrary ? 'Syncing...' : 'Sync Library'}
 								/>
 								<SynclibraryTooltip />
 							</div>

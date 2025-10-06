@@ -162,12 +162,23 @@ const usePatternQuery = () => {
 				activeRequestRef.current.abort();
 				activeRequestRef.current = null;
 			}
-			dispatch({
-				type: 'SET_SYNC_LIBRARY',
-				syncLibrary: false
-			})
 		};
 	}, [templateType, searchInput, filter.category, filter.contentType, filter.sortedBy, syncLibrary, patternsPage]);
+
+	// Handle sync completion separately to avoid race conditions
+	useEffect(() => {
+		if (syncLibrary && !loading) {
+			// Reset sync state after a short delay to allow animation to show
+			const timer = setTimeout(() => {
+				dispatch({
+					type: 'SET_SYNC_LIBRARY',
+					syncLibrary: false
+				});
+			}, 300); // Show animation for 1 second
+
+			return () => clearTimeout(timer);
+		}
+	}, [syncLibrary, loading, dispatch]);
 
 	// Separate useEffect for intersection observer to handle infinite scroll
 	useEffect(() => {
