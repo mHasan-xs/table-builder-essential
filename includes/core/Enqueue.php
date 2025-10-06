@@ -6,7 +6,7 @@ defined('ABSPATH') || exit;
 
 class Enqueue
 {
-    use \TableBuilderEssential\traitsx\Singleton;
+    use \TableBuilderEssential\traits\Singleton;
 
     public function __construct()
     {
