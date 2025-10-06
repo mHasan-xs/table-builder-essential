@@ -172,50 +172,6 @@ No! Table Builder Essential is performance-optimized with efficient caching and 
 
 7. **Download Analytics** - Track pattern popularity and usage with built-in analytics that show download counts and user preferences.
 
-== Changelog ==
-
-= 1.0.3 - 2024-10-06 =
-**🚀 Major Feature Release**
-* **New:** Live Preview URL system - Add preview links for frontend template demonstrations
-* **New:** Enhanced pattern action buttons with professional styling and responsive design
-* **New:** Preview button with eye icon for better user experience
-* **Enhanced:** Download count functionality with proper API integration and error handling
-* **Enhanced:** Sync functionality with visual feedback and smooth animations
-* **Enhanced:** Admin meta box interface with URL validation and helpful descriptions
-* **Fixed:** Download count not incrementing on pattern import
-* **Fixed:** Sync button animation not working properly
-* **Fixed:** Pattern ID handling between API and frontend components
-* **Improved:** REST API security with rate limiting for download endpoints
-* **Improved:** Button layouts with responsive mobile-first design
-* **Improved:** CSS styling with professional hover effects and transitions
-
-= 1.0.2 =
-* **Enhanced:** Template library search functionality with improved relevance scoring
-* **Added:** Advanced filtering options for better template discovery
-* **Fixed:** Category filtering compatibility with search functionality
-* **Improved:** Performance optimizations for large template libraries
-* **Updated:** Admin interface styling and user experience improvements
-
-= 1.0.1 =
-* **Added:** Comprehensive REST API for template management
-* **Added:** Pattern categorization system with custom taxonomies
-* **Enhanced:** Template import process with better error handling
-* **Fixed:** Compatibility issues with various WordPress themes
-* **Improved:** Code organization and performance optimizations
-
-= 1.0.0 =
-* **🎉 Initial Release**
-* **Added:** Core template library functionality
-* **Added:** Pattern management system
-* **Added:** Gutenberg block integration
-* **Added:** Admin interface for template organization
-* **Added:** Basic import/export functionality
-
-== Upgrade Notice ==
-
-= 1.0.3 =
-Major feature update! This version introduces the live preview system, enhanced download tracking, and improved sync functionality. Update now to enjoy the latest features and improvements.
-
 == Support ==
 
 **Need Help?** Our dedicated support team is here to assist you:
