@@ -53,23 +53,6 @@ add_action('wp_enqueue_scripts', function() {
     );
 });
 
-// Activation hook
-register_activation_hook(__FILE__, function() {
-    $functions = [
-        'table_builder_essential_register_template_post_type',
-        'table_builder_essential_register_layout_manager_post_type',
-        'table_builder_essential_register_layout_manager_taxonomies'
-    ];
-    
-    foreach ($functions as $func) {
-        if (function_exists($func)) {
-            $func();
-        }
-    }
-    
-    flush_rewrite_rules();
-});
-
 // Deactivation hook
 register_deactivation_hook(__FILE__, function() {
     flush_rewrite_rules();
