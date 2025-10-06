@@ -1,6 +1,5 @@
 === Table Builder Essential ===
 Contributors:      Wpmet
-Donate link:       https://wpmet.com/
 Tags:              table, gutenberg, block, responsive, design, patterns, templates, table builder, layout manager
 Requires at least: 5.8
 Tested up to:      6.8
