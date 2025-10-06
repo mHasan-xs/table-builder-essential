@@ -22,7 +22,7 @@ define('TABLE_BUILDER_ESSENTIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TABLE_BUILDER_ESSENTIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TABLE_BUILDER_ESSENTIAL_PLUGIN_FILE', __FILE__);
 
-require_once plugin_dir_path(__FILE__) . 'includes/autoloaderx.php';
+require_once plugin_dir_path(__FILE__) . 'includes/autoloader.php';
 TableBuilderEssential\Autoloader::register();
 
 add_action('init', 'table_builder_essential_security_init');
