@@ -4,64 +4,26 @@ import useCategoryQuery from '@/template-library/hooks/useCategoryQuery';
 import ContentLoader from '../common/ContentLoader';
 import RadioField from '../common/RadioField';
 
-/**
- * Filter component for the template library.
- * @returns {JSX.Element} The rendered Filter component.
- */
+
 const Filter = () => {
-	const { filter, dispatch, templateType, contentType, searchInput } = useContextLibrary();
+	const { filter, dispatch, contentType, searchInput } = useContextLibrary();
 	const { categories, loading } = useCategoryQuery();
-	
+
 	// Check if search is active to provide visual feedback
 	const isSearchActive = searchInput && searchInput.trim().length > 0;
-	/**
-	 * Handles the category filter.
-	 *
-	 * @param {string} newCategory - The new category value.
-	 * @returns {void}
-	 */
+
+	// Handles the category filter
 	const handleCategoryFilter = (newCategory) => {
-		// Clear search when changing category
-		dispatch({
-			type: 'SET_SEARCH_INPUT',
-			searchInput: ''
-		});
-		dispatch({
-			type: 'SET_KEY_WORDS',
-			keyWords: ''
-		});
-		
-		// Reset pagination when changing category
-		dispatch({
-			type: 'SET_PATTERNS_PAGE',
-			patternsPage: 1
-		});
-		
-		// Update category filter - let usePatternQuery handle clearing patterns
-		dispatch({
-			type: 'SET_FILTER',
-			filter: {
-				...filter,
-				category: newCategory
-			}
-		});
+		dispatch({ type: 'SET_SEARCH_INPUT', searchInput: '' });
+		dispatch({ type: 'SET_KEY_WORDS', keyWords: '' });
+		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
+		dispatch({ type: 'SET_FILTER', filter: { ...filter, category: newCategory } });
 	}
 
-
+	// Handles the content type filter
 	const handleContentTypeFilter = (newContentType) => {
-		// Reset patterns page when changing content type
-		dispatch({
-			type: 'SET_PATTERNS_PAGE',
-			patternsPage: 1
-		});
-		// Update filter - let usePatternQuery handle clearing patterns
-		dispatch({
-			type: 'SET_FILTER',
-			filter: {
-				...filter,
-				contentType: newContentType
-			}
-		});
+		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
+		dispatch({ type: 'SET_FILTER', filter: { ...filter, contentType: newContentType } });
 	}
 
 

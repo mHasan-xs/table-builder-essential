@@ -10,12 +10,7 @@ import PreviewIcon from '../icons/Preview';
 
 const THUMBNAIL_SELECTOR = '.table-builder-library-list-item-inner-content-thumbnail:not(.is-loading)';
 const CLASS_DISABLED = 'disabled';
-const useIsEditor = () => {
-	return useSelect((select) => {
-		const blockEditorStore = select('core/block-editor');
-		return blockEditorStore !== undefined;
-	}, []);
-};
+const useIsEditor = () => useSelect((select) => select('core/block-editor') !== undefined, []);
 
 const useProStatus = () => {
 	const { useHasProActive } = window.tableBuilder.helpers;
@@ -49,11 +44,9 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 		setIsImporting(true);
 		try {
 			await onPatternImport(pattern);
-			// Update download count after successful import
 			try {
 				await onDownloadCount(pattern);
 			} catch (downloadError) {
-				// Don't block import if download count fails
 				console.warn('Failed to update download count:', downloadError);
 			}
 		} finally {
@@ -65,12 +58,11 @@ function Pattern({ pattern, onPatternImport, onDownloadCount }) {
 	const handlePreview = useCallback(() => {
 		const previewUrl = pattern?.live_preview_url;
 		if (previewUrl && previewUrl.trim() !== '') {
-			// Ensure URL has protocol
 			let url = previewUrl.trim();
 			if (!url.startsWith('http://') && !url.startsWith('https://')) {
 				url = 'https://' + url;
 			}
-			
+
 			window.open(url, '_blank', 'noopener,noreferrer');
 		}
 	}, [pattern]);

@@ -34,18 +34,12 @@ const Patterns = () => {
 	}, [getSelectedBlockClientId, insertAfterBlock, replaceBlocks, insertBlocks]);
 
 	const handlePatternImport = useCallback(async (pattern) => {
-		const content = parse(pattern.content);
 		
-		const processedContent = imageImportType === 'upload'
-			? await updateTemplateBlocks(content)
-			: content;
-
+		const content = parse(pattern.content);
+		const processedContent = imageImportType === 'upload' ? await updateTemplateBlocks(content) : content;
 		insertPattern(processedContent);
+		dispatch({ type: 'SET_LOAD_LIBRARY', loadLibrary: false });
 
-		dispatch({
-			type: 'SET_LOAD_LIBRARY',
-			loadLibrary: false
-		});
 	}, [imageImportType, insertPattern, dispatch]);
 
 	const handleDownloadCount = useCallback(async (pattern) => {
@@ -53,16 +47,16 @@ const Patterns = () => {
 		if (!patternId) {
 			return;
 		}
-		
+
 		await updateDownloadCount(patternId);
 	}, [updateDownloadCount]);
 
-	const showLoader = useMemo(() => 
+	const showLoader = useMemo(() =>
 		patterns.length === 0 && loading,
 		[patterns.length, loading]
 	);
 
-	const showEmpty = useMemo(() => 
+	const showEmpty = useMemo(() =>
 		patterns.length === 0 && !loading,
 		[patterns.length, loading]
 	);
