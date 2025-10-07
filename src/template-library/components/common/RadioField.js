@@ -1,6 +1,6 @@
 import CheckMark from "../icons/CheckMark";
 
-const RadioField = ({ content = [], radioType = "fill", value, onChange, ekitTemplates }) => {
+const RadioField = ({ content = [], radioType = "fill", value, onChange }) => {
 
     return (
         <div className={`table-builder-radio-button-group${radioType !== 'fill' ? `-${radioType}` : ''}`}>
@@ -8,7 +8,7 @@ const RadioField = ({ content = [], radioType = "fill", value, onChange, ekitTem
                 const { slug, title } = tab;
                 const isActive = value === slug;
                 const classes = `table-builder-radio-button-container-${radioType}${isActive ? '-checked' : ''}`;
-                const label = radioType === 'bordered' && slug === 'all' ? `${title} ${ekitTemplates?.length || ''}` : title;
+                const label = title;
 
                 return (
                     <label key={slug || i} htmlFor={slug} className={`table-builder-radio-button-container ${classes}`}>
