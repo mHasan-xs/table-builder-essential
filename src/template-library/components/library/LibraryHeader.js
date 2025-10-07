@@ -1,5 +1,5 @@
 import { Button } from '@wordpress/components';
-import { useEffect, useRef, useCallback, useMemo } from '@wordpress/element';
+import { useEffect, useRef, useCallback } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import useContextLibrary from '../../hooks/useContextLibrary';
 import useDebounce from '@/template-library/hooks/useDebounce';
@@ -15,18 +15,14 @@ const SORT_OPTIONS = [
 	{ value: 'popular', label: 'Popular' },
 ];
 
-const useIsEditor = () => {
-	return useSelect((select) => {
-		const blockEditorStore = select('core/block-editor');
-		return blockEditorStore !== undefined;
-	}, []);
-};
+const useIsEditor = () => useSelect((select) => select('core/block-editor') !== undefined, []);
 
 const LibraryHeader = () => {
-	const { loadLibrary, templateType, dispatch, syncLibrary, filter, showSinglePage } = useContextLibrary();
+	const { loadLibrary, templateType, dispatch, syncLibrary, filter } = useContextLibrary();
 	const isEditor = useIsEditor();
 	const activeRef = useRef(null);
 
+	// Load/close library handler
 	const handleLoadLibrary = useCallback(() => {
 		dispatch({
 			type: 'SET_LOAD_LIBRARY',
@@ -45,6 +41,7 @@ const LibraryHeader = () => {
 		return () => document.removeEventListener('keydown', handleEscapeKey);
 	}, [handleEscapeKey]);
 
+	// Active button 
 	useEffect(() => {
 		const container = activeRef.current;
 		if (!container) return;
@@ -53,7 +50,6 @@ const LibraryHeader = () => {
 		const activeIndex = buttons.findIndex(el => el.classList.contains('is-active'));
 		
 		if (activeIndex === -1) return;
-
 		const width = buttons[activeIndex].clientWidth + 2;
 		const translateBefore = buttons
 			.slice(0, activeIndex)
@@ -63,7 +59,9 @@ const LibraryHeader = () => {
 		container.style.setProperty('--translate', `${translateBefore}px`);
 	}, [templateType]);
 
-	const doSearch = useDebounce((term) => {
+
+	// Handle search change
+	const debounceSearch = useDebounce((term) => {
 		dispatch({
 			type: 'SET_SEARCH_INPUT',
 			searchInput: term || ''
@@ -80,9 +78,10 @@ const LibraryHeader = () => {
 			});
 		}
 		
-		doSearch(cleanValue);
-	}, [doSearch, dispatch, filter]);
+		debounceSearch(cleanValue);
+	}, [debounceSearch, dispatch, filter]);
 
+	// Handle search close
 	const handleSearchClose = useCallback(() => {
 		dispatch({ type: 'SET_SEARCH_INPUT', searchInput: '' });
 		dispatch({ type: 'SET_KEY_WORDS', keyWords: '' });
@@ -96,6 +95,8 @@ const LibraryHeader = () => {
 		}
 	}, [dispatch, filter, templateType]);
 
+
+	//  Handle sort change
 	const handleSortChange = useCallback((val) => {
 		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
 		dispatch({
@@ -104,28 +105,19 @@ const LibraryHeader = () => {
 		});
 	}, [dispatch, filter]);
 
+
+	// Sync library handler
 	const handleSyncClick = useCallback(() => {
-		// Don't allow sync if already syncing
 		if (syncLibrary) return;
 		
-		// Reset patterns to force a fresh fetch
 		dispatch({ type: 'SET_PATTERNS', patterns: [] });
 		dispatch({ type: 'SET_PATTERNS_PAGE', patternsPage: 1 });
-		
-		// Trigger sync
 		dispatch({
 			type: 'SET_SYNC_LIBRARY',
 			syncLibrary: true
 		});
 	}, [dispatch, syncLibrary]);
 	
-
-	const displayStyle = useMemo(() => 
-		showSinglePage 
-			? { opacity: '0', visibility: 'hidden', cursor: 'none' }
-			: { opacity: '1', visibility: 'visible', cursor: 'pointer' },
-		[showSinglePage]
-	);
 
 	return (
 		<div className="interface-interface-skeleton__header table-builder-library-header">
@@ -134,7 +126,7 @@ const LibraryHeader = () => {
 					Table Builder
 				</div>
 				<div className="table-builder-library-search">
-					<div className="table-builder-library-select" style={displayStyle}>
+					<div className="table-builder-library-select">
 						<span>Sorted by:</span>
 						<SelectField
 							options={SORT_OPTIONS}
@@ -144,7 +136,7 @@ const LibraryHeader = () => {
 							error={false}
 						/>
 					</div>
-					<div style={displayStyle}>
+					<div>
 						<SearchBar
 							onChange={handleSearchChange}
 							onClick={(e) => e.target.focus()}
@@ -155,7 +147,7 @@ const LibraryHeader = () => {
 					</div>
 					{isEditor && (
 						<>
-							<div className="table-builder-library-icon" style={displayStyle}>
+							<div className="table-builder-library-icon">
 								<Button
 									variant="tertiary"
 									icon={<Reload />}
@@ -166,7 +158,7 @@ const LibraryHeader = () => {
 								/>
 								<SynclibraryTooltip />
 							</div>
-							<span className="table-builder-library-separate" style={displayStyle} />
+							<span className="table-builder-library-separate"/>
 							<div className="table-builder-library-icon">
 								<Button
 									onClick={handleLoadLibrary}
